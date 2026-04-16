@@ -1,12 +1,13 @@
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { GoogleMap as GoogleMapCanvas, InfoWindowF, MarkerF, useJsApiLoader } from '@react-google-maps/api';
+import React, { useState, useCallback, useMemo } from 'react';
 import Papa from 'papaparse';
 import {
   LayoutDashboard, Map, AlertTriangle, Download, Plus, Trash2, Edit3, Check, X,
-  Zap, MapPin, Activity, TrendingUp, ChevronRight, Settings, FileText, Shield,
+  Zap, MapPin, Activity, ChevronRight, Settings, FileText, Shield,
   Battery, Navigation, BarChart3, Bell, Search, Menu, ChevronDown, Eye, RefreshCw,
   Info, CheckCircle2, XCircle, AlertCircle, Cpu, Globe, Layers, Target, Gauge, Upload
 } from 'lucide-react';
+import { GoogleStationMap, MapModeNotice, MapModeToggle, SpainMap } from './components/maps/StationMaps';
+import { KpiCard, Modal, ToastContainer } from './components/ui/AppPrimitives';
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────
 const POWER_STANDARD_KW = 150;
@@ -90,7 +91,7 @@ const DISTRIBUTOR_RESEARCH_NOTES = [
   {
     distributor: 'i-DE',
     tone: 'heuristic',
-    summary: 'Iberdrola references i-DE distribution activity in 10 autonomous communities; corridor defaults remain heuristic and should be manually reviewed near borders.',
+    summary: 'Use i-DE as the default assignment for interior corridors, then verify border municipalities before final delivery.',
   },
 ];
 
@@ -329,7 +330,7 @@ const getDistributorRecommendation = ({ lat, lng, routeSegment }) => {
   return {
     distributor: 'i-DE',
     confidence: 'low',
-    reason: 'Fallback assignment. Confirm manually with distributor coverage maps for this exact municipality.',
+    reason: 'Default to i-DE for this location and verify the exact municipality against distributor coverage maps before submission.',
   };
 };
 
@@ -349,9 +350,9 @@ const getResolvedDistributor = (stationLike) => {
   if (stationLike.gridStatus === 'Sufficient') {
     return {
       distributor: '',
-      source: 'Optional',
-      confidence: 'optional',
-      reason: 'Distributor data is only mandatory for Moderate and Congested friction points.',
+      source: 'Not required',
+      confidence: 'not-required',
+      reason: 'Distributor data is only required for Moderate and Congested friction points.',
     };
   }
 
@@ -394,30 +395,6 @@ const formatImportTimestamp = (value) => (
     : 'Not imported yet'
 );
 
-// ─── TOAST SYSTEM ────────────────────────────────────────────────────────
-const ToastContainer = ({ toasts, onDismiss }) => (
-  <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2 max-w-sm">
-    {toasts.map(t => (
-      <div key={t.id}
-        className={`flex items-start gap-3 rounded-2xl border px-4 py-3 shadow-[0_20px_50px_rgba(15,23,42,0.12)] backdrop-blur-xl animate-slide-in
-          ${t.type === 'success' ? 'border-emerald-200 bg-white/95 text-emerald-900' :
-            t.type === 'error' ? 'border-red-200 bg-white/95 text-red-900' :
-            t.type === 'warning' ? 'border-amber-200 bg-white/95 text-amber-900' :
-            'border-slate-200 bg-white/95 text-slate-900'}`}
-      >
-        {t.type === 'success' ? <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600" /> :
-         t.type === 'error' ? <XCircle size={18} className="mt-0.5 shrink-0 text-red-600" /> :
-         t.type === 'warning' ? <AlertCircle size={18} className="mt-0.5 shrink-0 text-amber-600" /> :
-         <Info size={18} className="mt-0.5 shrink-0 text-sky-600" />}
-        <p className="text-sm font-medium flex-1">{t.message}</p>
-        <button onClick={() => onDismiss(t.id)} className="text-slate-400 transition hover:text-slate-700">
-          <X size={14} />
-        </button>
-      </div>
-    ))}
-  </div>
-);
-
 function useToasts() {
   const [toasts, setToasts] = useState([]);
   const addToast = useCallback((message, type = 'info') => {
@@ -430,385 +407,6 @@ function useToasts() {
   }, []);
   return { toasts, addToast, dismissToast };
 }
-
-// ─── MODAL COMPONENT ─────────────────────────────────────────────────────
-const Modal = ({ open, onClose, title, children, size = 'md' }) => {
-  if (!open) return null;
-  const sizes = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' };
-  return (
-    <div className="fixed inset-0 z-[9998] flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-slate-900/25 backdrop-blur-sm" />
-      <div
-        className={`relative ${sizes[size]} w-full rounded-[30px] border border-slate-200 bg-white/96 shadow-[0_32px_90px_rgba(15,23,42,0.18)] animate-modal-in`}
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-          <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
-          <button onClick={onClose} className="rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-900">
-            <X size={18} />
-          </button>
-        </div>
-        <div className="px-6 py-5">{children}</div>
-      </div>
-    </div>
-  );
-};
-
-// ─── KPI CARD ────────────────────────────────────────────────────────────
-const KpiCard = ({ icon: Icon, label, value, sublabel, color = 'emerald', trend }) => {
-  const colorMap = {
-    emerald: 'from-emerald-100 via-white to-emerald-50 border-emerald-200 text-emerald-700',
-    amber: 'from-amber-100 via-white to-amber-50 border-amber-200 text-amber-700',
-    yellow: 'from-yellow-100 via-white to-yellow-50 border-yellow-200 text-yellow-700',
-    red: 'from-red-100 via-white to-red-50 border-red-200 text-red-700',
-    blue: 'from-sky-100 via-white to-cyan-50 border-sky-200 text-sky-700',
-    violet: 'from-violet-100 via-white to-fuchsia-50 border-violet-200 text-violet-700',
-  };
-  return (
-    <div className={`group relative overflow-hidden rounded-[28px] border bg-gradient-to-br ${colorMap[color]} p-5 shadow-[0_20px_50px_rgba(148,163,184,0.14)] transition-all duration-300 hover:-translate-y-1`}>
-      <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">{label}</p>
-          <p className="text-3xl font-bold text-slate-950 tabular-nums">{value}</p>
-          {sublabel && <p className="mt-1 text-xs text-slate-500">{sublabel}</p>}
-        </div>
-        <div className="rounded-2xl bg-white/80 p-2.5 shadow-sm transition group-hover:bg-white">
-          <Icon size={22} />
-        </div>
-      </div>
-      {trend && (
-        <div className="mt-3 flex items-center gap-1 text-xs text-slate-600">
-          <TrendingUp size={12} />
-          <span>{trend}</span>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ─── SPAIN MAP (SVG) ─────────────────────────────────────────────────────
-const SpainMap = ({ stations, hoveredStation, setHoveredStation, minHeight = 350 }) => {
-  const stationsByRegion = useMemo(() => {
-    const map = {};
-    stations.forEach(s => {
-      const region = SPAIN_REGIONS.find(r => {
-        const dx = s.mapX - r.cx;
-        const dy = s.mapY - r.cy;
-        return Math.sqrt(dx * dx + dy * dy) < r.r + 15;
-      });
-      if (region) {
-        if (!map[region.id]) map[region.id] = [];
-        map[region.id].push(s);
-      }
-    });
-    return map;
-  }, [stations]);
-
-  const getRegionColor = (regionId) => {
-    const regionStations = stationsByRegion[regionId] || [];
-    if (regionStations.length === 0) return { fill: 'rgba(255,255,255,0.03)', stroke: 'rgba(255,255,255,0.08)' };
-    const hasCongested = regionStations.some(s => s.gridStatus === 'Congested');
-    const hasModerate = regionStations.some(s => s.gridStatus === 'Moderate');
-    if (hasCongested) return { fill: 'rgba(239,68,68,0.15)', stroke: 'rgba(239,68,68,0.4)' };
-    if (hasModerate) return { fill: 'rgba(234,179,8,0.15)', stroke: 'rgba(234,179,8,0.4)' };
-    return { fill: 'rgba(16,185,129,0.15)', stroke: 'rgba(16,185,129,0.4)' };
-  };
-
-  return (
-    <div className="relative w-full overflow-hidden rounded-[28px] border border-slate-200 bg-white/90 shadow-[0_24px_60px_rgba(148,163,184,0.12)]">
-      <div className="absolute top-4 left-4 z-10 flex items-center gap-4">
-        <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Sufficient
-        </span>
-        <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-          <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" /> Moderate
-        </span>
-        <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500" /> Congested
-        </span>
-      </div>
-      <svg viewBox="0 0 480 400" className="w-full h-auto" style={{ minHeight }}>
-        <defs>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <radialGradient id="stationGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#A3D133" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#A3D133" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-
-        {/* Simplified Spain outline */}
-        <path
-          d="M60,55 L110,40 L170,45 L230,50 L280,48 L340,55 L390,70 L410,95 L420,140 L430,190 L420,205 L380,240 L350,265 L330,290 L300,310 L260,340 L220,355 L180,350 L140,325 L110,300 L85,265 L65,230 L55,190 L50,150 L45,110 Z"
-          fill="rgba(0,86,63,0.06)" stroke="rgba(148,163,184,0.48)" strokeWidth="1.5"
-        />
-
-        {/* Region circles */}
-        {SPAIN_REGIONS.map(r => {
-          const colors = getRegionColor(r.id);
-          return (
-            <g key={r.id}>
-              <circle cx={r.cx} cy={r.cy} r={r.r} fill={colors.fill} stroke={colors.stroke} strokeWidth="1" opacity="0.7" />
-              <text x={r.cx} y={r.cy + 1} textAnchor="middle" dominantBaseline="middle"
-                className="text-[7px] fill-slate-500 font-medium pointer-events-none select-none">
-                {r.id}
-              </text>
-            </g>
-          );
-        })}
-
-        {/* Station markers */}
-        {stations.map(s => {
-          const isHovered = hoveredStation === s.id;
-          const color = getGridColorHex(s.gridStatus);
-          return (
-            <g key={s.id}
-              onMouseEnter={() => setHoveredStation(s.id)}
-              onMouseLeave={() => setHoveredStation(null)}
-              className="cursor-pointer"
-            >
-              {isHovered && <circle cx={s.mapX} cy={s.mapY} r="14" fill={color} opacity="0.15" />}
-              <circle cx={s.mapX} cy={s.mapY} r={isHovered ? 7 : 5}
-                fill={color} stroke="white" strokeWidth={isHovered ? 2 : 1} opacity={isHovered ? 1 : 0.85}
-                filter={isHovered ? 'url(#glow)' : undefined}
-                style={{ transition: 'all 0.2s ease' }}
-              />
-              {isHovered && (
-                <g>
-                  <rect x={s.mapX + 12} y={s.mapY - 38} width="140" height="64" rx="6"
-                    fill="rgba(17,24,39,0.95)" stroke={color} strokeWidth="1" />
-                  <text x={s.mapX + 18} y={s.mapY - 22} className="text-[9px] fill-white font-semibold">
-                    {s.stationId || `ST-${s.id.slice(0,4).toUpperCase()}`}
-                  </text>
-                  <text x={s.mapX + 18} y={s.mapY - 10} className="text-[8px] fill-gray-400">
-                    {getRouteLabel(s.routeSegment).slice(0, 25) || 'No route assigned'}
-                  </text>
-                  <text x={s.mapX + 18} y={s.mapY + 2} className="text-[8px] fill-gray-400">
-                    {s.numChargers} chargers · {s.numChargers * POWER_STANDARD_KW} kW
-                  </text>
-                  <text x={s.mapX + 18} y={s.mapY + 13} className="text-[8px] fill-gray-400">
-                    Grid: {s.gridStatus}
-                  </text>
-                </g>
-              )}
-            </g>
-          );
-        })}
-
-        {stations.length === 0 && (
-          <text x="240" y="200" textAnchor="middle" className="text-[12px] fill-slate-500 font-medium">
-            Import File 2.csv or add stations to see them on the map
-          </text>
-        )}
-      </svg>
-    </div>
-  );
-};
-
-const MapModeToggle = ({ mapMode, onChange, googleMapsConfigured }) => (
-  <div className="flex flex-wrap items-center gap-2">
-    <div className="inline-flex rounded-2xl border border-slate-200 bg-white/85 p-1 shadow-sm">
-      <button
-        onClick={() => onChange('offline')}
-        className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
-          mapMode === 'offline' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'
-        }`}
-      >
-        Offline Map
-      </button>
-      <button
-        onClick={() => onChange('google')}
-        className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
-          mapMode === 'google' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'
-        }`}
-      >
-        Google Maps
-      </button>
-    </div>
-    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.2em] ${
-      googleMapsConfigured
-        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-        : 'border-amber-200 bg-amber-50 text-amber-700'
-    }`}>
-      {googleMapsConfigured ? 'API key loaded from .env' : 'API key required'}
-    </span>
-  </div>
-);
-
-const MapModeNotice = ({ mapMode, message }) => (
-  <div className={`rounded-2xl border px-3.5 py-2.5 text-xs shadow-sm ${
-    mapMode === 'google'
-      ? 'border-amber-200 bg-amber-50/90 text-amber-800'
-      : 'border-sky-200 bg-sky-50/90 text-sky-800'
-  }`}>
-    {message}
-  </div>
-);
-
-const GoogleStationMap = ({ stations, hoveredStation, setHoveredStation, height = 520, onLoadFailure }) => {
-  const mapRef = useRef(null);
-  const failureReportedRef = useRef(false);
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: 'iberdrola-google-map-script',
-    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
-  });
-
-  const fitMapToStations = useCallback((mapInstance) => {
-    if (!window.google?.maps || !mapInstance) return;
-    if (stations.length === 0) {
-      mapInstance.setCenter(DEFAULT_MAP_CENTER);
-      mapInstance.setZoom(5.8);
-      return;
-    }
-
-    const bounds = new window.google.maps.LatLngBounds();
-    stations.forEach(({ lat, lng }) => bounds.extend({ lat, lng }));
-    mapInstance.fitBounds(bounds, 120);
-
-    if (stations.length === 1) {
-      mapInstance.setZoom(7.5);
-    }
-  }, [stations]);
-
-  const handleMapLoad = useCallback((mapInstance) => {
-    mapRef.current = mapInstance;
-    fitMapToStations(mapInstance);
-  }, [fitMapToStations]);
-
-  useEffect(() => {
-    if (mapRef.current) {
-      fitMapToStations(mapRef.current);
-    }
-  }, [fitMapToStations]);
-
-  useEffect(() => {
-    if (loadError && !failureReportedRef.current) {
-      failureReportedRef.current = true;
-      onLoadFailure?.('Google Maps could not load. Reverted to the bundled offline map.');
-    }
-  }, [loadError, onLoadFailure]);
-
-  const activeStation = stations.find(station => station.id === hoveredStation) ?? null;
-
-  if (loadError) {
-    return null;
-  }
-
-  if (!isLoaded) {
-    return (
-      <div
-        className="relative w-full overflow-hidden rounded-[28px] border border-slate-200 bg-white/90 shadow-[0_24px_60px_rgba(148,163,184,0.12)]"
-        style={{ minHeight: height }}
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(163,209,51,0.08),transparent_55%)]" />
-        <div className="relative flex h-full min-h-[inherit] items-center justify-center px-6 text-center">
-          <div>
-            <p className="text-sm font-semibold text-slate-900">Loading Google Maps</p>
-            <p className="mt-1 text-xs text-slate-500">Fetching live map tiles and rendering station markers.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const maps = window.google?.maps;
-
-  if (!maps) {
-    return null;
-  }
-
-  return (
-    <div className="relative w-full overflow-hidden rounded-[28px] border border-slate-200 bg-white/90 shadow-[0_24px_60px_rgba(148,163,184,0.12)]">
-      <div className="absolute left-4 top-4 z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white/95 px-3 py-2 shadow-xl">
-        {GRID_STATUS_OPTIONS.map(option => (
-          <span key={option.value} className="flex items-center gap-1.5 text-xs font-medium text-slate-600">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: getGridColorHex(option.value) }} />
-            {option.label}
-          </span>
-        ))}
-      </div>
-      <div className="absolute right-4 top-4 z-10 rounded-2xl border border-amber-200 bg-amber-50/95 px-3 py-2 text-[11px] font-medium text-amber-800 shadow-xl">
-        Google Maps is using the .env API key and requires internet access at runtime
-      </div>
-      {stations.length === 0 && (
-        <div className="absolute inset-x-4 bottom-4 z-10 rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 text-center text-xs text-slate-600 shadow-xl">
-          Import File 2.csv or add stations manually to populate the live map.
-        </div>
-      )}
-      <GoogleMapCanvas
-        mapContainerStyle={{ width: '100%', height: `${height}px` }}
-        center={DEFAULT_MAP_CENTER}
-        zoom={5.8}
-        options={GOOGLE_MAP_OPTIONS}
-        onClick={() => setHoveredStation(null)}
-        onLoad={handleMapLoad}
-        onUnmount={() => { mapRef.current = null; }}
-      >
-        {stations.map(station => {
-          const isActive = hoveredStation === station.id;
-          return (
-            <MarkerF
-              key={station.id}
-              position={{ lat: station.lat, lng: station.lng }}
-              onClick={() => setHoveredStation(station.id)}
-              onMouseOver={() => setHoveredStation(station.id)}
-              onMouseOut={() => setHoveredStation(current => (current === station.id ? null : current))}
-              icon={{
-                path: maps.SymbolPath.CIRCLE,
-                fillColor: getGridColorHex(station.gridStatus),
-                fillOpacity: 1,
-                scale: isActive ? 10 : 8,
-                strokeColor: '#ffffff',
-                strokeOpacity: 0.95,
-                strokeWeight: isActive ? 2.5 : 2,
-              }}
-              label={{
-                text: String(station.numChargers),
-                color: '#f9fafb',
-                fontSize: '11px',
-                fontWeight: '700',
-              }}
-            />
-          );
-        })}
-
-        {activeStation && (
-          <InfoWindowF
-            position={{ lat: activeStation.lat, lng: activeStation.lng }}
-            onCloseClick={() => setHoveredStation(null)}
-          >
-            <div className="min-w-[220px] pr-1 text-slate-900">
-              <p className="text-sm font-semibold">{activeStation.stationId}</p>
-              <p className="mt-1 text-xs text-slate-500">{getRouteLabel(activeStation.routeSegment)}</p>
-              <div className="mt-3 space-y-1 text-xs text-slate-600">
-                <p>{activeStation.numChargers} chargers</p>
-                <p>{activeStation.numChargers * POWER_STANDARD_KW} kW required capacity</p>
-                <p>Grid status: {activeStation.gridStatus}</p>
-                <p>
-                  {formatCoordinate(activeStation.lat, 'lat')} / {formatCoordinate(activeStation.lng, 'lng')}
-                </p>
-              </div>
-              <a
-                href={getGoogleMapsLocationUrl(activeStation.lat, activeStation.lng)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-flex items-center gap-1 rounded-xl bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-slate-800"
-              >
-                <Navigation size={12} /> Open in Google Maps
-              </a>
-            </div>
-          </InfoWindowF>
-        )}
-      </GoogleMapCanvas>
-    </div>
-  );
-};
 
 // ─── MAIN APP ────────────────────────────────────────────────────────────
 export default function App() {
@@ -834,8 +432,8 @@ export default function App() {
   const [mapMode, setMapMode] = useState(googleMapsConfigured ? 'google' : 'offline');
   const [mapModeMessage, setMapModeMessage] = useState(
     googleMapsConfigured
-      ? 'Google Maps is active using VITE_GOOGLE_MAPS_API_KEY from .env. Keep the offline map available for direct delivery and judging.'
-      : 'Google Maps is optional. Add VITE_GOOGLE_MAPS_API_KEY to enable it; the bundled offline map remains the safe default.'
+      ? 'Google Maps is active using VITE_GOOGLE_MAPS_API_KEY from .env. Keep the offline map as the delivery default for judging.'
+      : 'Offline mode is the delivery default. Add VITE_GOOGLE_MAPS_API_KEY only when a live Google Maps view is needed.'
   );
 
   // Editing
@@ -946,11 +544,11 @@ export default function App() {
       .filter((route) => route.status === 'blocked')
       .slice(0, 4)
       .forEach((route) => {
-        advisories.push(`${route.code}: largest straight-line gap is ${route.largestGap.gapKm.toFixed(1)} km. The app's optional team spacing gate blocks export until it is reduced to ${AFIR_LIGHT_DUTY_MAX_GAP_KM} km or less.`);
+        advisories.push(`${route.code}: reduce the largest straight-line gap from ${route.largestGap.gapKm.toFixed(1)} km to ${AFIR_LIGHT_DUTY_MAX_GAP_KM} km or less before treating this corridor as ready.`);
       });
 
     if (heuristicDistributorCount > 0) {
-      advisories.push(`${heuristicDistributorCount} friction point${heuristicDistributorCount === 1 ? ' is' : 's are'} using research-based distributor defaults. Confirm them before final submission.`);
+      advisories.push(`${heuristicDistributorCount} friction point${heuristicDistributorCount === 1 ? ' uses' : 'use'} a research-based distributor default and must be verified before final submission.`);
     }
 
     return advisories;
@@ -960,15 +558,15 @@ export default function App() {
   const handleMapModeChange = useCallback((nextMode) => {
     if (nextMode === 'google' && !googleMapsConfigured) {
       addToast('Add VITE_GOOGLE_MAPS_API_KEY to enable Google Maps.', 'warning');
-      setMapModeMessage('Google Maps is unavailable until VITE_GOOGLE_MAPS_API_KEY is configured. The offline map is still fully bundled.');
+      setMapModeMessage('Google Maps is unavailable until VITE_GOOGLE_MAPS_API_KEY is configured. The bundled offline map remains ready for delivery.');
       return;
     }
 
     setMapMode(nextMode);
     setMapModeMessage(
       nextMode === 'google'
-        ? 'Google Maps uses the API key from .env, loads live tiles, and requires internet access at runtime. Use the offline map for portable submission builds.'
-        : 'Offline mode uses the bundled SVG map, so the interface still opens directly without external services.'
+        ? 'Google Maps uses the API key from .env, loads live tiles, and requires internet access. Use it for demos, and keep offline mode for delivery.'
+        : 'Offline mode uses the bundled SVG map and remains the direct-open version for submission delivery.'
     );
   }, [addToast, googleMapsConfigured]);
 
@@ -987,9 +585,29 @@ export default function App() {
           setHoveredStation={setHoveredStation}
           height={height}
           onLoadFailure={handleGoogleMapsFailure}
+          googleMapsApiKey={GOOGLE_MAPS_API_KEY}
+          defaultMapCenter={DEFAULT_MAP_CENTER}
+          googleMapOptions={GOOGLE_MAP_OPTIONS}
+          gridStatusOptions={GRID_STATUS_OPTIONS}
+          powerStandardKw={POWER_STANDARD_KW}
+          getGridColorHex={getGridColorHex}
+          getRouteLabel={getRouteLabel}
+          formatCoordinate={formatCoordinate}
+          getGoogleMapsLocationUrl={getGoogleMapsLocationUrl}
         />
       )
-      : <SpainMap stations={stations} hoveredStation={hoveredStation} setHoveredStation={setHoveredStation} minHeight={height} />
+      : (
+        <SpainMap
+          stations={stations}
+          hoveredStation={hoveredStation}
+          setHoveredStation={setHoveredStation}
+          minHeight={height}
+          regions={SPAIN_REGIONS}
+          powerStandardKw={POWER_STANDARD_KW}
+          getGridColorHex={getGridColorHex}
+          getRouteLabel={getRouteLabel}
+        />
+      )
   );
 
   const getStationFormError = (candidate, currentStationId = null) => {
@@ -1279,16 +897,16 @@ export default function App() {
           warnings.push(`File 1 reported ${frictionPoints} friction points, but ${importedFrictionCount} were reconstructed in the app state.`);
         }
       } else {
-        warnings.push('File 1.csv was not provided, so projected EVs and baseline values were left unchanged.');
+        warnings.push('File 1.csv was not provided, so projected EVs and baseline values remain unchanged until that file is loaded.');
       }
 
       if (!slotFiles.file3 && importedStations.some((station) => station.gridStatus !== 'Sufficient')) {
-        warnings.push('File 3.csv was not provided. Friction points may need distributor data before exporting again.');
+        warnings.push('File 3.csv was not provided. Load it or complete the missing friction-point distributor data before exporting again.');
       }
 
       const heuristicAssignments = importedStations.filter((station) => station.distributorSource === 'Heuristic' && station.gridStatus !== 'Sufficient').length;
       if (heuristicAssignments > 0) {
-        warnings.push(`${heuristicAssignments} friction point${heuristicAssignments === 1 ? ' is' : 's are'} using research-based distributor defaults. Review them before final export.`);
+        warnings.push(`${heuristicAssignments} friction point${heuristicAssignments === 1 ? ' uses' : 'use'} a research-based distributor default. Verify those assignments before final export.`);
       }
 
       setStations(importedStations);
@@ -1435,22 +1053,22 @@ export default function App() {
     dashboard: {
       eyebrow: 'Program Control',
       title: 'Strategic infrastructure dashboard',
-      summary: 'Track corridor readiness, distributor coverage, and the 2027 EV deployment posture in one place.',
+      summary: 'Read the final network posture, corridor readiness, and distributor coverage in one place.',
     },
     map: {
       eyebrow: 'Spatial Intelligence',
       title: 'Corridor map explorer',
-      summary: 'Inspect proposed charging locations, geospatial coverage, and direct links into Google Maps.',
+      summary: 'Inspect the proposed locations, confirm corridor coverage, and open each site in Google Maps.',
     },
     friction: {
       eyebrow: 'Risk Control',
       title: 'Grid friction analysis',
-      summary: 'Prioritize constrained stations, distributor coordination, and the deployment sequence for grid-heavy sites.',
+      summary: 'Classify which stations deploy now, which stay in plan with action, and which must wait for reinforcement.',
     },
     export: {
       eyebrow: 'Submission Room',
       title: 'Reports and datathon delivery',
-      summary: 'Validate imported outputs, review PDF rule alignment, and export the three required CSV files.',
+      summary: 'Confirm submission readiness, check PDF alignment, and export the three required CSV files.',
     },
   };
 
@@ -1522,9 +1140,9 @@ export default function App() {
           </select>
           <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
             {form.gridStatus === 'Sufficient'
-              ? 'Optional for grid-ready stations. Moderate and Congested sites will use this value or the territory heuristic.'
+              ? 'Not required for Sufficient stations. Moderate and Congested sites use this value or the territory default.'
               : distributorSuggestion.distributor
-                ? `Suggested default: ${distributorSuggestion.distributor} (${distributorSuggestion.confidence} confidence). ${distributorSuggestion.reason}`
+                ? `Default distributor: ${distributorSuggestion.distributor} (${distributorSuggestion.confidence} confidence). ${distributorSuggestion.reason}`
                 : distributorSuggestion.reason}
           </p>
         </FormField>
@@ -1696,8 +1314,8 @@ export default function App() {
         <div className={`${surfaceCls} p-5`}>
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 className={sectionTitleCls}>Corridor Spacing Check (Team Assumption)</h3>
-              <p className="mt-1 text-xs text-slate-500">This optional planning gate uses a {AFIR_LIGHT_DUTY_MAX_GAP_KM} km spacing reference from EU guidance. It is a team quality rule, not a PDF disqualification rule.</p>
+              <h3 className={sectionTitleCls}>Corridor Spacing Decision</h3>
+              <p className="mt-1 text-xs text-slate-500">Internal team rule: keep every measured gap at or below {AFIR_LIGHT_DUTY_MAX_GAP_KM} km. This determines internal readiness, but it does not change the PDF schema.</p>
             </div>
             <div className="rounded-2xl border border-sky-200 bg-sky-50 px-3 py-2 text-right">
               <p className="text-[10px] uppercase tracking-[0.2em] text-sky-700">EU Reference Ratios</p>
@@ -1720,7 +1338,7 @@ export default function App() {
                             ? 'bg-red-100 text-red-700'
                             : 'bg-slate-200 text-slate-700'
                       }`}>
-                        {route.status === 'aligned' ? 'Aligned' : route.status === 'blocked' ? 'Blocked' : 'Need More Stops'}
+                        {route.status === 'aligned' ? 'Ready' : route.status === 'blocked' ? 'Blocked' : 'Add Stops'}
                       </span>
                     </div>
                     <p className="mt-1 text-xs text-slate-500">{route.label}</p>
@@ -1735,7 +1353,7 @@ export default function App() {
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
                   <span>{route.stationCount} station{route.stationCount === 1 ? '' : 's'}</span>
                   {route.distributors.length > 0 && <span>Distributors: {route.distributors.join(', ')}</span>}
-                  {route.heuristicAssignments > 0 && <span className="text-amber-700">{route.heuristicAssignments} heuristic default{route.heuristicAssignments === 1 ? '' : 's'}</span>}
+                  {route.heuristicAssignments > 0 && <span className="text-amber-700">{route.heuristicAssignments} default assignment{route.heuristicAssignments === 1 ? '' : 's'} to verify</span>}
                 </div>
                 {route.largestGap.from && route.largestGap.to && (
                   <p className="mt-2 text-[11px] text-slate-500">
@@ -1759,7 +1377,7 @@ export default function App() {
                   <span className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${
                     note.tone === 'official' ? 'text-emerald-700' : 'text-amber-700'
                   }`}>
-                    {note.tone === 'official' ? 'Public source' : 'Heuristic fallback'}
+                    {note.tone === 'official' ? 'Public source' : 'Territory default'}
                   </span>
                 </div>
                 <p className="text-xs leading-relaxed text-slate-600">{note.summary}</p>
@@ -1779,7 +1397,7 @@ export default function App() {
             })}
           </div>
           <p className="mt-4 text-xs leading-relaxed text-slate-500">
-            Distributor defaults are advisory. Border provinces and areas served by other Spanish DSOs should still be reviewed manually before final delivery.
+            Use these defaults for assignment, then verify border provinces and municipalities served by other Spanish DSOs before final delivery.
           </p>
         </div>
       </div>
@@ -1789,7 +1407,7 @@ export default function App() {
           <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 className={sectionTitleCls}>Network Overview</h3>
-              <p className="mt-1 text-xs text-slate-500">Switch between the bundled submission map and Google Maps without losing station metadata.</p>
+              <p className="mt-1 text-xs text-slate-500">Review the proposed network on the bundled submission map or the live Google layer without losing station metadata.</p>
             </div>
             <div className="flex flex-col items-end gap-2">
               <MapModeToggle mapMode={mapMode} onChange={handleMapModeChange} googleMapsConfigured={googleMapsConfigured} />
@@ -1910,10 +1528,10 @@ export default function App() {
             <div className="max-w-2xl">
               <p className={sectionTitleCls}>Interactive Geospatial Layer</p>
               <h2 className="mt-3 max-w-xl text-3xl font-semibold leading-tight text-slate-950 lg:text-[2.15rem]">
-                Corridor-level charging coverage with live map mode, offline fallback, and station actions in one workspace.
+                Review the final corridor charging network with live map mode, offline delivery mode, and station actions in one workspace.
               </h2>
               <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">
-                Use this surface to inspect spatial coverage, compare grid readiness across routes, and jump directly into Google Maps when the live key is available.
+                Use this surface to confirm spatial coverage, compare grid readiness across routes, and jump directly into Google Maps when the live key is available.
               </p>
               <div className="mt-5 flex flex-wrap gap-2.5">
                 {[
@@ -2061,8 +1679,8 @@ export default function App() {
                   </td>
                   <td className="px-5 py-3.5 text-center">
                     <div className="flex flex-col items-center gap-1">
-                      <span className="text-xs font-medium text-slate-900">{resolvedDistributor.distributor || 'Optional'}</span>
-                      {resolvedDistributor.source === 'Heuristic' && <span className="text-[10px] text-amber-700">Heuristic</span>}
+                      <span className="text-xs font-medium text-slate-900">{resolvedDistributor.distributor || 'Not required'}</span>
+                      {resolvedDistributor.source === 'Heuristic' && <span className="text-[10px] text-amber-700">Defaulted</span>}
                       {resolvedDistributor.source === 'Imported' && <span className="text-[10px] text-sky-700">Imported</span>}
                     </div>
                   </td>
@@ -2112,17 +1730,49 @@ export default function App() {
       <div className="rounded-[32px] border border-slate-200 bg-white/82 p-6 shadow-[0_20px_60px_rgba(148,163,184,0.14)]">
         <p className={sectionTitleCls}>Constraint Surveillance</p>
         <h2 className="text-2xl font-semibold text-slate-950">Friction point analysis</h2>
-        <p className="mt-0.5 text-sm text-slate-500">Automated detection of grid capacity constraints across the proposed network.</p>
+        <p className="mt-0.5 text-sm text-slate-500">Direct assignment answer: deploy Sufficient stations immediately, keep Moderate stations in the plan with distributor action, and classify Congested stations as bottlenecks that require reinforcement before deployment.</p>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <KpiCard icon={CheckCircle2} label="Grid Ready" value={stations.filter(s => s.gridStatus === 'Sufficient').length} color="emerald"
-          sublabel="Ready for immediate deployment" />
+          sublabel="Deploy directly in the proposed network" />
         <KpiCard icon={AlertCircle} label="Moderate Friction" value={stations.filter(s => s.gridStatus === 'Moderate').length} color="yellow"
-          sublabel="Requires grid assessment" />
+          sublabel="Keep in rollout with distributor action" />
         <KpiCard icon={XCircle} label="Critical Friction" value={stations.filter(s => s.gridStatus === 'Congested').length} color="red"
-          sublabel="Major upgrade required" />
+          sublabel="Treat as bottlenecks before deployment" />
+      </div>
+
+      <div className={`${surfaceCls} p-5`}>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className={sectionTitleCls}>Assignment Answer</h3>
+            <p className="mt-2 text-lg font-semibold text-slate-950">Network deployment decision</p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <div className="rounded-[22px] border border-emerald-200 bg-emerald-50/80 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-emerald-700">Deploy Now</p>
+            <p className="mt-2 text-sm font-semibold text-slate-900">
+              {stations.filter(s => s.gridStatus === 'Sufficient').length} station{stations.filter(s => s.gridStatus === 'Sufficient').length === 1 ? '' : 's'} are ready for direct deployment.
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-600">These sites stay in the proposed network without additional grid mitigation.</p>
+          </div>
+          <div className="rounded-[22px] border border-amber-200 bg-amber-50/80 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-amber-700">Deploy With Action</p>
+            <p className="mt-2 text-sm font-semibold text-slate-900">
+              {stations.filter(s => s.gridStatus === 'Moderate').length} station{stations.filter(s => s.gridStatus === 'Moderate').length === 1 ? '' : 's'} remain in scope but require distributor coordination.
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-600">These sites should appear in the rollout plan and in File 3 as friction points with follow-up action attached.</p>
+          </div>
+          <div className="rounded-[22px] border border-red-200 bg-red-50/80 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-700">Defer Until Reinforced</p>
+            <p className="mt-2 text-sm font-semibold text-slate-900">
+              {stations.filter(s => s.gridStatus === 'Congested').length} station{stations.filter(s => s.gridStatus === 'Congested').length === 1 ? '' : 's'} should be treated as bottlenecks.
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-600">These sites stay flagged in File 3 and move forward only after grid reinforcement is approved.</p>
+          </div>
+        </div>
       </div>
 
       {/* Friction Details */}
@@ -2136,7 +1786,7 @@ export default function App() {
         <div className="rounded-[30px] border border-emerald-200 bg-emerald-50/85 p-8 text-center shadow-sm">
           <CheckCircle2 size={40} className="mx-auto mb-3 text-emerald-500/60" />
           <h3 className="text-lg font-semibold text-emerald-800">No Friction Points Detected</h3>
-          <p className="mt-1 text-sm text-slate-600">All stations have sufficient grid capacity for deployment.</p>
+          <p className="mt-1 text-sm text-slate-600">Answer: all proposed stations are deployable without additional grid intervention.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -2169,14 +1819,14 @@ export default function App() {
               </div>
               <div className="mt-4 border-t border-white/70 pt-3">
                 <p className="text-xs text-slate-600">
-                  <span className="font-semibold text-slate-800">Recommended Action: </span>
+                  <span className="font-semibold text-slate-800">Assignment Decision: </span>
                   {s.gridStatus === 'Congested'
-                    ? 'Submit grid upgrade request to REE. Estimated lead time: 6–12 months. Consider interim mobile charging units or load-managed deployment.'
-                    : 'Conduct detailed grid capacity study. Coordinate with local distribution company for reinforcement timeline. May proceed with reduced initial charger count.'}
+                    ? 'Classify this location as a bottleneck in File 3, submit the grid reinforcement request, and defer deployment until the upgrade is approved.'
+                    : 'Keep this location in the rollout, classify it as a friction point in File 3, and close distributor capacity confirmation before energization.'}
                 </p>
                 <p className="mt-2 text-xs text-slate-500">
                   Distributor: <span className="text-slate-800">{getResolvedDistributor(s).distributor || 'Not provided'}</span>
-                  {getResolvedDistributor(s).source === 'Heuristic' && <span className="text-amber-700"> · heuristic default</span>}
+                  {getResolvedDistributor(s).source === 'Heuristic' && <span className="text-amber-700"> · verify before final submission</span>}
                 </p>
               </div>
             </div>
@@ -2296,17 +1946,17 @@ export default function App() {
               {
                 label: 'Import status',
                 value: importStatus.file2Name ? 'Real submission files loaded' : 'Awaiting File 2.csv import',
-                detail: 'File 2 remains the anchor dataset; File 1 and File 3 enrich KPIs and friction metadata.',
+                detail: 'File 2 is the anchor dataset, while File 1 and File 3 complete the KPI and friction answer set.',
               },
               {
                 label: 'PDF alignment',
                 value: validationErrors.length === 0 ? 'Required checks satisfied' : `${validationErrors.length} issue${validationErrors.length === 1 ? '' : 's'} to resolve`,
-                detail: 'Naming, schema shape, grid status filters, and the 150 kW standard stay in the validation layer.',
+                detail: 'Naming, schema shape, grid status filters, and the 150 kW standard remain enforced before export.',
               },
               {
                 label: 'Planning pressure',
                 value: afirBlockingRoutes.length === 0 ? 'No blocked corridor routes' : `${afirBlockingRoutes.length} route${afirBlockingRoutes.length === 1 ? '' : 's'} blocked by team gate`,
-                detail: 'The internal corridor-spacing advisory remains visible without altering the official PDF rules.',
+                detail: 'The internal corridor-spacing rule stays visible without altering the official PDF rules.',
               },
             ].map((item) => (
               <div key={item.label} className="rounded-[22px] border border-slate-200/90 bg-slate-50/85 p-4">
@@ -2372,8 +2022,8 @@ export default function App() {
           <p>estimated_demand_kw is calculated as n_chargers_proposed × 150 kW for every friction point.</p>
           <p>Urban-center coordinates are blocked to keep proposals focused on interurban corridors.</p>
           <p>The built app is configured for offline delivery with bundled data and relative asset paths, so it opens directly without login or installation.</p>
-          <p>Team assumption: a {AFIR_LIGHT_DUTY_MAX_GAP_KM} km corridor-spacing gate is enabled as an internal quality control rule.</p>
-          <p>Distributor defaults now resolve from public research notes and remain manually reviewable before export.</p>
+          <p>Internal team rule: every corridor gap must stay at or below {AFIR_LIGHT_DUTY_MAX_GAP_KM} km for the proposal to count as internally ready.</p>
+          <p>Distributor defaults resolve from public research notes and must be verified before export when a friction point uses a territory default.</p>
         </div>
       </div>
 
@@ -2400,11 +2050,11 @@ export default function App() {
                   ? 'text-sky-700'
                   : 'text-amber-700'
             }`}>
-              Team Planning Advisory
+              Submission Decisions
             </h3>
             {planningAdvisories.length === 0 ? (
               <p className="mt-1 text-xs text-slate-600">
-                No active research-driven advisories. Route spacing and distributor defaults are currently inside the app's planning tolerance.
+                No additional planning actions remain. Route spacing and distributor assignments are inside the current internal tolerance.
               </p>
             ) : (
               <ul className="mt-2 space-y-1.5">
@@ -2430,7 +2080,7 @@ export default function App() {
               <CheckCircle2 size={22} className="mt-0.5 text-emerald-600" />
               <div>
                 <h3 className="text-sm font-semibold text-emerald-700">All Validations Passed</h3>
-                <p className="mt-0.5 text-xs text-slate-600">Your submission meets PDF-required checks (schema, naming, statuses, and {POWER_STANDARD_KW} kW standard) plus the optional team spacing gate.</p>
+                <p className="mt-0.5 text-xs text-slate-600">Your submission meets the PDF-required checks and the internal {AFIR_LIGHT_DUTY_MAX_GAP_KM} km corridor-spacing rule.</p>
               </div>
             </>
           ) : (
@@ -2499,7 +2149,7 @@ export default function App() {
             <p className={sectionTitleCls}>Final Packaging</p>
             <h3 className="mb-1 text-lg font-semibold text-slate-950">Prepare submission</h3>
             <p className="mb-4 text-sm text-slate-600">
-              Validates all PDF-required checks, applies the optional {AFIR_LIGHT_DUTY_MAX_GAP_KM} km team spacing gate, and exports all three files simultaneously.
+              Validate the PDF-required checks, enforce the internal {AFIR_LIGHT_DUTY_MAX_GAP_KM} km corridor-spacing rule, and export all three files simultaneously.
             </p>
             <button onClick={handlePrepareSubmission}
               className={accentButtonCls}>
