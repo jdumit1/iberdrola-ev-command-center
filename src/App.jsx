@@ -1902,18 +1902,105 @@ export default function App() {
   // MAP PAGE
   const MapPage = () => (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 rounded-[32px] border border-slate-200 bg-white/82 p-6 shadow-[0_20px_60px_rgba(148,163,184,0.14)] lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p className={sectionTitleCls}>Interactive Geospatial Layer</p>
-          <h2 className="text-2xl font-semibold text-slate-950">Network map</h2>
-          <p className="mt-0.5 text-sm text-slate-500">Interactive geospatial view of all charging stations across Spain.</p>
+      <div className="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
+        <div className="relative overflow-hidden rounded-[36px] border border-slate-200/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(239,246,250,0.95),rgba(224,242,254,0.88))] p-6 shadow-[0_28px_80px_rgba(148,163,184,0.18)]">
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.18),transparent_55%)]" />
+          <div className="pointer-events-none absolute -bottom-12 right-0 h-48 w-48 rounded-full bg-emerald-100/80 blur-3xl" />
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className={sectionTitleCls}>Interactive Geospatial Layer</p>
+              <h2 className="mt-3 max-w-xl text-3xl font-semibold leading-tight text-slate-950 lg:text-[2.15rem]">
+                Corridor-level charging coverage with live map mode, offline fallback, and station actions in one workspace.
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">
+                Use this surface to inspect spatial coverage, compare grid readiness across routes, and jump directly into Google Maps when the live key is available.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2.5">
+                {[
+                  `${stations.length} proposed station${stations.length === 1 ? '' : 's'}`,
+                  `${new Set(stations.map(s => s.routeSegment)).size || 0} routes mapped`,
+                  `${mapMode === 'google' ? 'Live map mode active' : 'Bundled offline map active'}`,
+                ].map((pill) => (
+                  <span key={pill} className="rounded-full border border-white/90 bg-white/85 px-3 py-1.5 text-[11px] font-medium text-slate-600 shadow-sm">
+                    {pill}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="flex min-w-[280px] flex-col gap-3 sm:min-w-[320px]">
+              <MapModeToggle mapMode={mapMode} onChange={handleMapModeChange} googleMapsConfigured={googleMapsConfigured} />
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: 'Live mode', value: googleMapsConfigured ? 'Configured' : 'Offline only', tone: 'sky' },
+                  { label: 'Congested sites', value: stations.filter(s => s.gridStatus === 'Congested').length, tone: 'red' },
+                  { label: 'Avg station size', value: `${kpis.avgChargersPerStation}`, tone: 'emerald' },
+                  { label: 'Map links', value: stations.length, tone: 'slate' },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className={`rounded-[24px] border px-4 py-3 shadow-sm ${
+                      item.tone === 'sky'
+                        ? 'border-sky-200 bg-sky-50/80'
+                        : item.tone === 'red'
+                          ? 'border-red-200 bg-red-50/80'
+                          : item.tone === 'emerald'
+                            ? 'border-emerald-200 bg-emerald-50/80'
+                            : 'border-slate-200 bg-white/80'
+                    }`}
+                  >
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">{item.label}</p>
+                    <p className="mt-2 text-2xl font-semibold text-slate-950 tabular-nums">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => { setForm({ ...emptyForm }); setShowAddModal(true); }}
+                className={`${primaryButtonCls} justify-center`}>
+                <Plus size={16} /> Add Station
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <MapModeToggle mapMode={mapMode} onChange={handleMapModeChange} googleMapsConfigured={googleMapsConfigured} />
-          <button onClick={() => { setForm({ ...emptyForm }); setShowAddModal(true); }}
-            className={primaryButtonCls}>
-            <Plus size={16} /> Add Station
-          </button>
+
+        <div className={`${surfaceCls} p-5`}>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className={sectionTitleCls}>Map Operations</p>
+              <h3 className="mt-2 text-lg font-semibold text-slate-950">Spatial control panel</h3>
+            </div>
+            <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] ${
+              mapMode === 'google' ? 'bg-sky-100 text-sky-700' : 'bg-slate-100 text-slate-700'
+            }`}>
+              {mapMode === 'google' ? 'Live tiles' : 'Offline'}
+            </span>
+          </div>
+          <div className="mt-5 space-y-4">
+            {[
+              {
+                label: 'Current mode',
+                value: mapMode === 'google' ? 'Google Maps enabled' : 'Offline SVG map enabled',
+                detail: mapModeMessage,
+              },
+              {
+                label: 'Route coverage',
+                value: `${new Set(stations.map(s => s.routeSegment)).size || 0} active route${new Set(stations.map(s => s.routeSegment)).size === 1 ? '' : 's'}`,
+                detail: 'Every station remains connected to its corridor code for the export schema and map table.',
+              },
+              {
+                label: 'Direct map actions',
+                value: `${stations.length} Google Maps shortcut${stations.length === 1 ? '' : 's'}`,
+                detail: 'Each projected location keeps an external Maps link in the table and the live map popup.',
+              },
+            ].map((item) => (
+              <div key={item.label} className="rounded-[22px] border border-slate-200/90 bg-slate-50/85 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">{item.label}</p>
+                  <ChevronRight size={14} className="text-slate-400" />
+                </div>
+                <p className="mt-2 text-sm font-semibold text-slate-900">{item.value}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -2138,10 +2225,101 @@ export default function App() {
   // EXPORT CENTER PAGE
   const ExportPage = () => (
     <div className="space-y-6">
-      <div className="rounded-[32px] border border-slate-200 bg-[linear-gradient(135deg,rgba(15,23,42,0.94),rgba(30,41,59,0.9),rgba(71,85,105,0.88))] p-6 shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-300">Boardroom Delivery</p>
-        <h2 className="text-2xl font-semibold text-white">Reports and submission center</h2>
-        <p className="mt-0.5 max-w-3xl text-sm text-slate-300">Load your real datathon outputs, inspect them in the UI, and regenerate submission-ready CSV files.</p>
+      <div className="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
+        <div className="relative overflow-hidden rounded-[36px] border border-slate-200 bg-[linear-gradient(135deg,rgba(15,23,42,0.97),rgba(30,41,59,0.92),rgba(51,65,85,0.9))] p-6 shadow-[0_28px_80px_rgba(15,23,42,0.18)]">
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_top_right,rgba(163,209,51,0.18),transparent_56%)]" />
+          <div className="pointer-events-none absolute -bottom-12 right-0 h-48 w-48 rounded-full bg-emerald-400/20 blur-3xl" />
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-300">Boardroom Delivery</p>
+              <h2 className="mt-3 max-w-xl text-3xl font-semibold leading-tight text-white lg:text-[2.15rem]">
+                Submission control room for imported outputs, PDF rules, and final CSV packaging.
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">
+                Review the imported deliverables, track planning advisories, and export the three required datathon files from a single delivery surface.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2.5">
+                {[
+                  `${validationErrors.length === 0 ? 'Validation clear' : `${validationErrors.length} validation issue${validationErrors.length === 1 ? '' : 's'}`}`,
+                  `${importStatus.stationCount} imported station${importStatus.stationCount === 1 ? '' : 's'}`,
+                  `${planningAdvisories.length} planning advisor${planningAdvisories.length === 1 ? 'y' : 'ies'}`,
+                ].map((pill) => (
+                  <span key={pill} className="rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-[11px] font-medium text-slate-200 shadow-sm backdrop-blur-sm">
+                    {pill}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="grid min-w-[280px] grid-cols-2 gap-3 sm:min-w-[320px]">
+              {[
+                { label: 'Files loaded', value: [importStatus.file1Name, importStatus.file2Name, importStatus.file3Name].filter(Boolean).length, tone: 'emerald' },
+                { label: 'Validation', value: validationErrors.length === 0 ? 'Pass' : 'Review', tone: validationErrors.length === 0 ? 'sky' : 'red' },
+                { label: 'Friction rows', value: kpis.frictionPoints.length, tone: 'amber' },
+                { label: 'Exports ready', value: 3, tone: 'slate' },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className={`rounded-[24px] border px-4 py-3 shadow-sm ${
+                    item.tone === 'emerald'
+                      ? 'border-emerald-300/30 bg-emerald-400/10'
+                      : item.tone === 'sky'
+                        ? 'border-sky-300/30 bg-sky-400/10'
+                        : item.tone === 'red'
+                          ? 'border-red-300/30 bg-red-400/10'
+                          : item.tone === 'amber'
+                            ? 'border-amber-300/30 bg-amber-400/10'
+                            : 'border-white/10 bg-white/10'
+                  }`}
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-300">{item.label}</p>
+                  <p className="mt-2 text-2xl font-semibold text-white tabular-nums">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className={`${surfaceCls} p-5`}>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className={sectionTitleCls}>Delivery Snapshot</p>
+              <h3 className="mt-2 text-lg font-semibold text-slate-950">Submission posture</h3>
+            </div>
+            <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] ${
+              validationErrors.length === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+            }`}>
+              {validationErrors.length === 0 ? 'Ready' : 'Review'}
+            </span>
+          </div>
+          <div className="mt-5 space-y-4">
+            {[
+              {
+                label: 'Import status',
+                value: importStatus.file2Name ? 'Real submission files loaded' : 'Awaiting File 2.csv import',
+                detail: 'File 2 remains the anchor dataset; File 1 and File 3 enrich KPIs and friction metadata.',
+              },
+              {
+                label: 'PDF alignment',
+                value: validationErrors.length === 0 ? 'Required checks satisfied' : `${validationErrors.length} issue${validationErrors.length === 1 ? '' : 's'} to resolve`,
+                detail: 'Naming, schema shape, grid status filters, and the 150 kW standard stay in the validation layer.',
+              },
+              {
+                label: 'Planning pressure',
+                value: afirBlockingRoutes.length === 0 ? 'No blocked corridor routes' : `${afirBlockingRoutes.length} route${afirBlockingRoutes.length === 1 ? '' : 's'} blocked by team gate`,
+                detail: 'The internal corridor-spacing advisory remains visible without altering the official PDF rules.',
+              },
+            ].map((item) => (
+              <div key={item.label} className="rounded-[22px] border border-slate-200/90 bg-slate-50/85 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">{item.label}</p>
+                  <ChevronRight size={14} className="text-slate-400" />
+                </div>
+                <p className="mt-2 text-sm font-semibold text-slate-900">{item.value}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className={`${surfaceCls} p-5`}>
