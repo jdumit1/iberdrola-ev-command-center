@@ -1556,6 +1556,101 @@ export default function App() {
   // DASHBOARD
   const DashboardPage = () => (
     <div className="space-y-6">
+      <div className="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
+        <div className="relative overflow-hidden rounded-[36px] border border-slate-200/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(239,246,250,0.95),rgba(236,253,245,0.9))] p-6 shadow-[0_28px_80px_rgba(148,163,184,0.18)]">
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_top_right,rgba(163,209,51,0.22),transparent_55%)]" />
+          <div className="pointer-events-none absolute -right-10 bottom-0 h-40 w-40 rounded-full bg-sky-100/80 blur-3xl" />
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className={sectionTitleCls}>National Rollout Brief</p>
+              <h2 className="mt-3 max-w-xl text-3xl font-semibold leading-tight text-slate-950 lg:text-[2.15rem]">
+                Spain interurban charging plan with corridor, grid, and submission readiness in one view.
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">
+                The dashboard is tuned for the datathon handoff: proposed charging locations, friction points, distributor defaults, and the submission-quality checks stay visible without leaving the planning surface.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2.5">
+                {[
+                  `${POWER_STANDARD_KW} kW fixed charger standard`,
+                  `${new Set(stations.map(s => s.routeSegment)).size || 0} active corridor routes`,
+                  `${googleMapsConfigured ? 'Google Maps live mode ready' : 'Offline map packaged'}`,
+                ].map((pill) => (
+                  <span key={pill} className="rounded-full border border-white/90 bg-white/85 px-3 py-1.5 text-[11px] font-medium text-slate-600 shadow-sm">
+                    {pill}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="grid min-w-[280px] grid-cols-2 gap-3 sm:min-w-[320px]">
+              {[
+                { label: 'Proposed sites', value: kpis.totalStations, tone: 'emerald' },
+                { label: 'Corridors tracked', value: new Set(stations.map(s => s.routeSegment)).size, tone: 'sky' },
+                { label: 'Critical frictions', value: kpis.frictionPoints.filter(point => point.gridStatus === 'Congested').length, tone: 'red' },
+                { label: 'Baseline chargers', value: existingBaseline.toLocaleString(), tone: 'slate' },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className={`rounded-[24px] border px-4 py-3 shadow-sm ${
+                    item.tone === 'emerald'
+                      ? 'border-emerald-200 bg-emerald-50/80'
+                      : item.tone === 'sky'
+                        ? 'border-sky-200 bg-sky-50/80'
+                        : item.tone === 'red'
+                          ? 'border-red-200 bg-red-50/80'
+                          : 'border-slate-200 bg-white/80'
+                  }`}
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">{item.label}</p>
+                  <p className="mt-2 text-2xl font-semibold text-slate-950 tabular-nums">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className={`${surfaceCls} p-5`}>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className={sectionTitleCls}>Program Snapshot</p>
+              <h3 className="mt-2 text-lg font-semibold text-slate-950">Submission posture</h3>
+            </div>
+            <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] ${
+              validationErrors.length === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+            }`}>
+              {validationErrors.length === 0 ? 'Ready' : 'Review'}
+            </span>
+          </div>
+          <div className="mt-5 space-y-4">
+            {[
+              {
+                label: 'Submission files',
+                value: importStatus.file2Name ? 'Real outputs loaded' : 'Waiting for File 2.csv',
+                detail: 'Import File 1, File 2, and File 3 to mirror the final deliverable in-app.',
+              },
+              {
+                label: 'Grid bottlenecks',
+                value: `${kpis.frictionPoints.length} friction point${kpis.frictionPoints.length === 1 ? '' : 's'}`,
+                detail: kpis.frictionPoints.length === 0 ? 'No Moderate or Congested stations are currently flagged.' : 'Moderate and Congested stations remain visible in the risk workflow and export controls.',
+              },
+              {
+                label: 'Corridor spacing gate',
+                value: afirBlockingRoutes.length === 0 ? 'Within team tolerance' : `${afirBlockingRoutes.length} blocked route${afirBlockingRoutes.length === 1 ? '' : 's'}`,
+                detail: 'This remains an internal planning rule layered on top of the PDF-required checks.',
+              },
+            ].map((item) => (
+              <div key={item.label} className="rounded-[22px] border border-slate-200/90 bg-slate-50/85 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">{item.label}</p>
+                  <ChevronRight size={14} className="text-slate-400" />
+                </div>
+                <p className="mt-2 text-sm font-semibold text-slate-900">{item.value}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {!setupDone && (
         <div className="rounded-[32px] border border-emerald-200/80 bg-[linear-gradient(135deg,rgba(163,209,51,0.22),rgba(255,255,255,0.96),rgba(14,165,233,0.08))] p-6 shadow-[0_24px_60px_rgba(148,163,184,0.14)]">
           <div className="flex items-start gap-4">
@@ -2260,7 +2355,7 @@ export default function App() {
 
       <div className="relative flex min-h-screen">
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'w-72' : 'w-24'} flex shrink-0 flex-col border-r border-white/60 bg-white/70 backdrop-blur-xl transition-all duration-300`}>
+      <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} flex shrink-0 flex-col border-r border-white/60 bg-white/70 backdrop-blur-xl transition-all duration-300`}>
         {/* Logo */}
         <div className="flex items-center gap-3 border-b border-slate-200/80 px-5 py-5">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 shrink-0 shadow-sm">
