@@ -125,6 +125,227 @@ const URBAN_EXCLUSION_ZONES = [
   { name: 'Murcia', lat: 37.9922, lng: -1.1307, radiusKm: 14 },
 ];
 
+const TRAFFIC_TIER_META = {
+  'very-high': {
+    label: 'Very high',
+    score: 3,
+    maxPoiDistanceKm: 28,
+    reviewPoiDistanceKm: 16,
+  },
+  high: {
+    label: 'High',
+    score: 2,
+    maxPoiDistanceKm: 32,
+    reviewPoiDistanceKm: 20,
+  },
+  medium: {
+    label: 'Medium',
+    score: 1,
+    maxPoiDistanceKm: 36,
+    reviewPoiDistanceKm: 24,
+  },
+};
+
+const DEFAULT_ROUTE_INTELLIGENCE = {
+  trafficTier: 'medium',
+  note: 'Use service areas, logistics nodes, and major towns as the minimum demand anchors on this corridor.',
+  poiAnchors: [],
+};
+
+const ROUTE_INTELLIGENCE = {
+  'A-1': {
+    trafficTier: 'very-high',
+    note: 'A-1 is one of Spain\'s busiest northbound corridors, linking Madrid, Burgos, Vitoria-Gasteiz, and the French gateway at Irun.',
+    poiAnchors: [
+      { name: 'Madrid northern logistics arc', lat: 40.5480, lng: -3.6421, type: 'logistics belt' },
+      { name: 'Somosierra service cluster', lat: 41.1335, lng: -3.5814, type: 'mountain service area' },
+      { name: 'Aranda de Duero', lat: 41.6718, lng: -3.6892, type: 'regional node' },
+      { name: 'Burgos logistics belt', lat: 42.3439, lng: -3.6969, type: 'logistics belt' },
+      { name: 'Miranda de Ebro', lat: 42.6877, lng: -2.9476, type: 'interchange' },
+      { name: 'Vitoria-Gasteiz', lat: 42.8467, lng: -2.6716, type: 'metro node' },
+      { name: 'San Sebastian', lat: 43.3183, lng: -1.9812, type: 'metro node' },
+      { name: 'Irun border gateway', lat: 43.3382, lng: -1.7893, type: 'border gateway' },
+    ],
+  },
+  'A-2': {
+    trafficTier: 'very-high',
+    note: 'A-2 carries the Madrid-Zaragoza-Barcelona freight axis, so viable stations should stay close to major junctions, logistics platforms, or urban fringes.',
+    poiAnchors: [
+      { name: 'Madrid east logistics belt', lat: 40.4381, lng: -3.5400, type: 'logistics belt' },
+      { name: 'Guadalajara', lat: 40.6330, lng: -3.1660, type: 'regional node' },
+      { name: 'Alcolea del Pinar', lat: 41.0345, lng: -2.4667, type: 'service town' },
+      { name: 'Calatayud', lat: 41.3535, lng: -1.6432, type: 'regional node' },
+      { name: 'Zaragoza PLAZA platform', lat: 41.6488, lng: -0.8891, type: 'logistics belt' },
+      { name: 'Fraga', lat: 41.5224, lng: 0.3489, type: 'interchange' },
+      { name: 'Lleida', lat: 41.6176, lng: 0.6200, type: 'regional node' },
+      { name: 'Martorell', lat: 41.4740, lng: 1.9306, type: 'industrial node' },
+      { name: 'Barcelona logistics belt', lat: 41.3369, lng: 2.1020, type: 'logistics belt' },
+    ],
+  },
+  'A-3': {
+    trafficTier: 'very-high',
+    note: 'A-3 is the direct Madrid-Valencia corridor, so stations should concentrate around freight stops, service towns, and Valencia access nodes.',
+    poiAnchors: [
+      { name: 'Arganda logistics belt', lat: 40.3008, lng: -3.4388, type: 'logistics belt' },
+      { name: 'Tarancon', lat: 40.0108, lng: -3.0073, type: 'regional node' },
+      { name: 'Honrubia', lat: 39.6128, lng: -2.2836, type: 'service town' },
+      { name: 'Motilla del Palancar', lat: 39.5648, lng: -1.9127, type: 'service town' },
+      { name: 'Minglanilla', lat: 39.5340, lng: -1.6006, type: 'service town' },
+      { name: 'Utiel-Requena logistics belt', lat: 39.4746, lng: -1.1026, type: 'logistics belt' },
+      { name: 'Cheste circuit cluster', lat: 39.4951, lng: -0.6823, type: 'event node' },
+      { name: 'Valencia west access', lat: 39.4638, lng: -0.4613, type: 'metro fringe' },
+    ],
+  },
+  'A-4': {
+    trafficTier: 'very-high',
+    note: 'A-4 links Madrid to Andalusia and Cadiz, so the demand profile follows large metro fringes, Despenaperros crossings, and major logistics cities.',
+    poiAnchors: [
+      { name: 'Mercamadrid-Getafe belt', lat: 40.3383, lng: -3.7107, type: 'logistics belt' },
+      { name: 'Ocana junction', lat: 39.9600, lng: -3.4970, type: 'interchange' },
+      { name: 'Tembleque', lat: 39.7008, lng: -3.5031, type: 'service town' },
+      { name: 'Puerto Lapice', lat: 39.3238, lng: -3.4810, type: 'service town' },
+      { name: 'Valdepenas', lat: 38.7605, lng: -3.3841, type: 'regional node' },
+      { name: 'Guarroman-Bailen', lat: 38.1814, lng: -3.6862, type: 'logistics belt' },
+      { name: 'Cordoba', lat: 37.8882, lng: -4.7794, type: 'metro node' },
+      { name: 'La Carlota', lat: 37.6718, lng: -4.9321, type: 'service town' },
+      { name: 'Seville airport axis', lat: 37.4170, lng: -5.8931, type: 'airport node' },
+      { name: 'Jerez de la Frontera', lat: 36.6860, lng: -6.1372, type: 'metro node' },
+      { name: 'Puerto Real-Cadiz access', lat: 36.5282, lng: -6.1918, type: 'port node' },
+    ],
+  },
+  'A-5': {
+    trafficTier: 'high',
+    note: 'A-5 is a strategic Madrid-Portugal connection with long rural stretches, so stations should stay tied to service towns, logistics edges, and border gateways.',
+    poiAnchors: [
+      { name: 'Mostoles-Alcorcon belt', lat: 40.3454, lng: -3.8649, type: 'metro fringe' },
+      { name: 'Navalcarnero', lat: 40.2871, lng: -4.0114, type: 'service town' },
+      { name: 'Talavera de la Reina', lat: 39.9602, lng: -4.8308, type: 'regional node' },
+      { name: 'Oropesa', lat: 39.9191, lng: -5.1734, type: 'service town' },
+      { name: 'Navalmoral de la Mata', lat: 39.8916, lng: -5.5400, type: 'regional node' },
+      { name: 'Trujillo', lat: 39.4609, lng: -5.8820, type: 'tourism hub' },
+      { name: 'Miajadas', lat: 39.1513, lng: -5.9073, type: 'service town' },
+      { name: 'Merida logistics belt', lat: 38.9175, lng: -6.3440, type: 'logistics belt' },
+      { name: 'Badajoz border gateway', lat: 38.8786, lng: -6.9703, type: 'border gateway' },
+    ],
+  },
+  'A-6': {
+    trafficTier: 'very-high',
+    note: 'A-6 carries northwest long-distance traffic from Madrid to Galicia, so stations should cluster around mountain crossings, logistics towns, and regional capitals.',
+    poiAnchors: [
+      { name: 'Collado Villalba', lat: 40.6296, lng: -4.0052, type: 'metro fringe' },
+      { name: 'Adanero service node', lat: 40.9480, lng: -4.6059, type: 'service town' },
+      { name: 'Medina del Campo', lat: 41.3083, lng: -4.9166, type: 'regional node' },
+      { name: 'Tordesillas', lat: 41.5011, lng: -5.0017, type: 'interchange' },
+      { name: 'Benavente', lat: 42.0037, lng: -5.6782, type: 'regional node' },
+      { name: 'Astorga', lat: 42.4588, lng: -6.0560, type: 'service town' },
+      { name: 'Ponferrada logistics belt', lat: 42.5466, lng: -6.5962, type: 'logistics belt' },
+      { name: 'Lugo', lat: 43.0099, lng: -7.5560, type: 'regional node' },
+      { name: 'Baamonde interchange', lat: 43.1738, lng: -7.7580, type: 'interchange' },
+      { name: 'A Coruna-Arteixo belt', lat: 43.3048, lng: -8.5075, type: 'metro node' },
+    ],
+  },
+  'A-7': {
+    trafficTier: 'very-high',
+    note: 'A-7 follows the Mediterranean development belt, so the demand spine comes from coastal metros, tourism hubs, industrial nodes, and port access points.',
+    poiAnchors: [
+      { name: 'La Jonquera border gateway', lat: 42.4189, lng: 2.8736, type: 'border gateway' },
+      { name: 'Girona', lat: 41.9794, lng: 2.8214, type: 'metro node' },
+      { name: 'Granollers', lat: 41.6086, lng: 2.2877, type: 'industrial node' },
+      { name: 'Tarragona-Reus belt', lat: 41.1189, lng: 1.2445, type: 'port node' },
+      { name: 'Amposta', lat: 40.7090, lng: 0.5795, type: 'interchange' },
+      { name: 'Castellon logistics belt', lat: 39.9864, lng: -0.0376, type: 'logistics belt' },
+      { name: 'Sagunto port axis', lat: 39.6804, lng: -0.2786, type: 'port node' },
+      { name: 'Gandia', lat: 38.9680, lng: -0.1845, type: 'tourism hub' },
+      { name: 'Benidorm', lat: 38.5411, lng: -0.1225, type: 'tourism hub' },
+      { name: 'Alicante-Elche belt', lat: 38.3452, lng: -0.4810, type: 'airport-logistics node' },
+      { name: 'Murcia', lat: 37.9922, lng: -1.1307, type: 'metro node' },
+      { name: 'Lorca', lat: 37.6712, lng: -1.7017, type: 'regional node' },
+      { name: 'Almeria port axis', lat: 36.8340, lng: -2.4637, type: 'port node' },
+      { name: 'Motril', lat: 36.7484, lng: -3.5179, type: 'port node' },
+      { name: 'Malaga metro fringe', lat: 36.7213, lng: -4.4214, type: 'metro node' },
+      { name: 'Marbella-Estepona belt', lat: 36.5099, lng: -4.8864, type: 'tourism hub' },
+      { name: 'Algeciras port gateway', lat: 36.1320, lng: -5.4470, type: 'port gateway' },
+    ],
+  },
+  'AP-7': {
+    trafficTier: 'high',
+    note: 'AP-7 is the premium toll alternative on the Mediterranean belt, so viable sites should still sit close to tourism demand, logistics zones, or high-flow junctions.',
+    poiAnchors: [
+      { name: 'Girona south toll node', lat: 41.9650, lng: 2.7892, type: 'toll node' },
+      { name: 'Vilafranca del Penedes', lat: 41.3462, lng: 1.6971, type: 'regional node' },
+      { name: 'Castello-Benicassim belt', lat: 40.0531, lng: 0.0660, type: 'tourism hub' },
+      { name: 'Sagunto-AP7 interchange', lat: 39.6823, lng: -0.2789, type: 'interchange' },
+      { name: 'Benidorm toll coast', lat: 38.5411, lng: -0.1225, type: 'tourism hub' },
+      { name: 'Cartagena-Murcia toll arc', lat: 37.6257, lng: -0.9966, type: 'port-logistics node' },
+      { name: 'Malaga west toll arc', lat: 36.6766, lng: -4.4896, type: 'metro fringe' },
+      { name: 'Marbella toll arc', lat: 36.5101, lng: -4.8857, type: 'tourism hub' },
+    ],
+  },
+  'A-66': {
+    trafficTier: 'medium',
+    note: 'A-66 is strategic but less continuously urbanized, so stations should pin to Via de la Plata cities, service towns, and mountain crossing nodes.',
+    poiAnchors: [
+      { name: 'Seville north logistics belt', lat: 37.4702, lng: -5.9270, type: 'logistics belt' },
+      { name: 'Zafra', lat: 38.4259, lng: -6.4162, type: 'regional node' },
+      { name: 'Merida', lat: 38.9175, lng: -6.3440, type: 'metro node' },
+      { name: 'Caceres', lat: 39.4753, lng: -6.3722, type: 'regional node' },
+      { name: 'Plasencia', lat: 40.0312, lng: -6.0884, type: 'service town' },
+      { name: 'Bejar', lat: 40.3864, lng: -5.7634, type: 'mountain service town' },
+      { name: 'Salamanca logistics belt', lat: 40.9701, lng: -5.6635, type: 'logistics belt' },
+      { name: 'Zamora', lat: 41.5035, lng: -5.7468, type: 'regional node' },
+      { name: 'Leon', lat: 42.5987, lng: -5.5671, type: 'regional node' },
+      { name: 'Campomanes tunnel approach', lat: 43.0160, lng: -5.8057, type: 'mountain crossing' },
+      { name: 'Oviedo-Gijon belt', lat: 43.3619, lng: -5.8494, type: 'metro node' },
+    ],
+  },
+  'AP-68': {
+    trafficTier: 'high',
+    note: 'AP-68 concentrates Ebro Valley through-traffic between Bilbao, Logrono, Tudela, and Zaragoza, so sites should stay near toll nodes, logistics parks, or large towns.',
+    poiAnchors: [
+      { name: 'Bilbao south access', lat: 43.2630, lng: -2.9350, type: 'metro node' },
+      { name: 'Miranda de Ebro', lat: 42.6877, lng: -2.9476, type: 'interchange' },
+      { name: 'Haro-Cenicero wine belt', lat: 42.5760, lng: -2.8478, type: 'regional node' },
+      { name: 'Logrono-Agoncillo belt', lat: 42.4627, lng: -2.4455, type: 'airport-logistics node' },
+      { name: 'Calahorra', lat: 42.3037, lng: -1.9656, type: 'regional node' },
+      { name: 'Tudela', lat: 42.0617, lng: -1.6050, type: 'regional node' },
+      { name: 'Gallur-Alagon industrial arc', lat: 41.8682, lng: -1.3212, type: 'industrial node' },
+      { name: 'Zaragoza west access', lat: 41.6488, lng: -0.9778, type: 'metro fringe' },
+    ],
+  },
+  'N-340': {
+    trafficTier: 'high',
+    note: 'N-340 demand is seasonal and settlement-led, so stations should stay close to coastal towns, tourism clusters, port access, or major bypass junctions.',
+    poiAnchors: [
+      { name: 'Algeciras', lat: 36.1320, lng: -5.4470, type: 'port gateway' },
+      { name: 'Marbella', lat: 36.5101, lng: -4.8857, type: 'tourism hub' },
+      { name: 'Malaga', lat: 36.7213, lng: -4.4214, type: 'metro node' },
+      { name: 'Motril', lat: 36.7484, lng: -3.5179, type: 'tourism-port node' },
+      { name: 'Almeria', lat: 36.8340, lng: -2.4637, type: 'port node' },
+      { name: 'Murcia', lat: 37.9922, lng: -1.1307, type: 'metro node' },
+      { name: 'Elche-Alicante', lat: 38.2653, lng: -0.6985, type: 'metro belt' },
+      { name: 'Benidorm', lat: 38.5411, lng: -0.1225, type: 'tourism hub' },
+      { name: 'Castellon', lat: 39.9864, lng: -0.0376, type: 'regional node' },
+      { name: 'Tarragona', lat: 41.1189, lng: 1.2445, type: 'port node' },
+      { name: 'Barcelona south access', lat: 41.2790, lng: 1.9760, type: 'metro fringe' },
+    ],
+  },
+  'A-8': {
+    trafficTier: 'very-high',
+    note: 'A-8 carries continuous Cantabrian coastal demand and Bilbao-area congestion, so stations should anchor to metro fringes, port towns, and service clusters.',
+    poiAnchors: [
+      { name: 'Bilbao metro belt', lat: 43.2630, lng: -2.9350, type: 'metro node' },
+      { name: 'Castro Urdiales', lat: 43.3828, lng: -3.2196, type: 'coastal town' },
+      { name: 'Santander', lat: 43.4623, lng: -3.8099, type: 'port node' },
+      { name: 'Torrelavega', lat: 43.3494, lng: -4.0472, type: 'interchange' },
+      { name: 'Unquera service node', lat: 43.3772, lng: -4.4872, type: 'service town' },
+      { name: 'Llanes', lat: 43.4195, lng: -4.7540, type: 'tourism hub' },
+      { name: 'Gijon-Aviles belt', lat: 43.5453, lng: -5.6619, type: 'metro node' },
+      { name: 'Ribadeo', lat: 43.5371, lng: -7.0409, type: 'coastal node' },
+      { name: 'Vilalba-Baamonde arc', lat: 43.2986, lng: -7.6842, type: 'interchange' },
+    ],
+  },
+};
+
 const GRID_STATUS_OPTIONS = [
   { value: 'Sufficient', color: 'emerald', label: 'Sufficient' },
   { value: 'Moderate', color: 'amber', label: 'Moderate' },
@@ -207,6 +428,97 @@ const distanceKm = (lat1, lng1, lat2, lng2) => {
 const findUrbanExclusionZone = (lat, lng) => (
   URBAN_EXCLUSION_ZONES.find(zone => distanceKm(lat, lng, zone.lat, zone.lng) <= zone.radiusKm) ?? null
 );
+
+const getRouteIntelligence = (routeSegment) => {
+  const normalizedRoute = normalizeRouteSegment(routeSegment);
+  const routeIntelligence = ROUTE_INTELLIGENCE[normalizedRoute] ?? DEFAULT_ROUTE_INTELLIGENCE;
+  const trafficMeta = TRAFFIC_TIER_META[routeIntelligence.trafficTier] ?? TRAFFIC_TIER_META.medium;
+
+  return {
+    ...routeIntelligence,
+    code: normalizedRoute,
+    trafficLabel: trafficMeta.label,
+    trafficScore: trafficMeta.score,
+    maxPoiDistanceKm: routeIntelligence.maxPoiDistanceKm ?? trafficMeta.maxPoiDistanceKm,
+    reviewPoiDistanceKm: routeIntelligence.reviewPoiDistanceKm ?? trafficMeta.reviewPoiDistanceKm,
+  };
+};
+
+const findNearestRoutePoi = (routeSegment, lat, lng) => {
+  const routeIntelligence = getRouteIntelligence(routeSegment);
+  if (routeIntelligence.poiAnchors.length === 0) return null;
+
+  return routeIntelligence.poiAnchors.reduce((best, poi) => {
+    const poiDistanceKm = distanceKm(lat, lng, poi.lat, poi.lng);
+    if (!best || poiDistanceKm < best.poiDistanceKm) {
+      return { ...poi, poiDistanceKm };
+    }
+    return best;
+  }, null);
+};
+
+const evaluateStationPlacement = (stationLike) => {
+  const lat = parseDecimal(stationLike.lat);
+  const lng = parseDecimal(stationLike.lng);
+  const routeSegment = normalizeRouteSegment(stationLike.routeSegment);
+
+  if (Number.isNaN(lat) || Number.isNaN(lng) || !routeSegment) {
+    return {
+      status: 'pending',
+      trafficLabel: 'Pending',
+      summary: 'Add valid coordinates and a route segment to evaluate traffic density and corridor POIs.',
+      note: 'Traffic and POI screening becomes available after coordinates and route are defined.',
+      score: 0,
+    };
+  }
+
+  const routeIntelligence = getRouteIntelligence(routeSegment);
+  const nearestPoi = findNearestRoutePoi(routeSegment, lat, lng);
+
+  if (!nearestPoi) {
+    return {
+      status: 'review',
+      trafficLabel: routeIntelligence.trafficLabel,
+      summary: `${routeSegment}: no corridor POIs are mapped yet, so this site needs manual review before submission.`,
+      note: routeIntelligence.note,
+      score: routeIntelligence.trafficScore,
+    };
+  }
+
+  const withinReviewBand = nearestPoi.poiDistanceKm <= routeIntelligence.reviewPoiDistanceKm;
+  const withinMaxBand = nearestPoi.poiDistanceKm <= routeIntelligence.maxPoiDistanceKm;
+
+  if (!withinMaxBand) {
+    return {
+      status: 'isolated',
+      trafficLabel: routeIntelligence.trafficLabel,
+      nearestPoi,
+      note: routeIntelligence.note,
+      score: Math.max(0, routeIntelligence.trafficScore - 2),
+      summary: `${routeSegment}: nearest corridor POI is ${nearestPoi.name} (${nearestPoi.type}) at ${nearestPoi.poiDistanceKm.toFixed(1)} km, beyond the ${routeIntelligence.maxPoiDistanceKm} km siting limit for this route.`,
+    };
+  }
+
+  if (!withinReviewBand) {
+    return {
+      status: 'review',
+      trafficLabel: routeIntelligence.trafficLabel,
+      nearestPoi,
+      note: routeIntelligence.note,
+      score: routeIntelligence.trafficScore + 1,
+      summary: `${routeSegment}: site is anchored by ${nearestPoi.name}, but at ${nearestPoi.poiDistanceKm.toFixed(1)} km it sits near the outer edge of the route-demand zone.`,
+    };
+  }
+
+  return {
+    status: 'anchored',
+    trafficLabel: routeIntelligence.trafficLabel,
+    nearestPoi,
+    note: routeIntelligence.note,
+    score: routeIntelligence.trafficScore + 3,
+    summary: `${routeSegment}: site is anchored by ${nearestPoi.name} (${nearestPoi.type}) at ${nearestPoi.poiDistanceKm.toFixed(1)} km, keeping it tied to active corridor demand.`,
+  };
+};
 
 const downloadCSV = (filename, headers, rows) => {
   const csvContent = [
@@ -489,9 +801,28 @@ export default function App() {
     return { totalStations, totalChargers, totalCapacity, frictionPoints, complianceRate, avgChargersPerStation };
   }, [stations]);
 
+  const stationPlacementList = useMemo(() => (
+    stations.map((station) => ({ station, placement: evaluateStationPlacement(station) }))
+  ), [stations]);
+
+  const stationPlacementById = useMemo(() => (
+    new Map(stationPlacementList.map(({ station, placement }) => [station.id, placement]))
+  ), [stationPlacementList]);
+
+  const isolatedStations = useMemo(() => (
+    stationPlacementList.filter(({ placement }) => placement.status === 'isolated')
+  ), [stationPlacementList]);
+
+  const reviewStations = useMemo(() => (
+    stationPlacementList.filter(({ placement }) => placement.status === 'review')
+  ), [stationPlacementList]);
+
   const corridorCoverage = useMemo(() => (
     ROUTE_SEGMENTS.map((route) => {
       const routeStations = stations.filter((station) => station.routeSegment === route.code);
+      const routePlacement = routeStations
+        .map((station) => stationPlacementById.get(station.id))
+        .filter(Boolean);
       const orderedStations = [...routeStations].sort((left, right) => getRouteSortValue(left) - getRouteSortValue(right));
       const gaps = orderedStations.slice(1).map((station, index) => {
         const previousStation = orderedStations[index];
@@ -504,6 +835,7 @@ export default function App() {
       const largestGap = gaps.reduce((largest, gap) => (gap.gapKm > largest.gapKm ? gap : largest), { gapKm: 0 });
       const distributors = [...new Set(routeStations.map((station) => getResolvedDistributor(station).distributor).filter(Boolean))];
       const heuristicAssignments = routeStations.filter((station) => getResolvedDistributor(station).source === 'Heuristic' && station.gridStatus !== 'Sufficient').length;
+      const routeIntelligence = getRouteIntelligence(route.code);
       const status = routeStations.length < 2
         ? 'insufficient'
         : largestGap.gapKm > AFIR_LIGHT_DUTY_MAX_GAP_KM
@@ -518,9 +850,13 @@ export default function App() {
         status,
         distributors,
         heuristicAssignments,
+        trafficLabel: routeIntelligence.trafficLabel,
+        trafficNote: routeIntelligence.note,
+        isolatedCount: routePlacement.filter((placement) => placement.status === 'isolated').length,
+        reviewCount: routePlacement.filter((placement) => placement.status === 'review').length,
       };
     })
-  ), [stations]);
+  ), [stationPlacementById, stations]);
 
   const routeCoverageRows = useMemo(() => {
     const rank = { blocked: 0, insufficient: 1, aligned: 2 };
@@ -559,6 +895,18 @@ export default function App() {
 
   const planningAdvisories = useMemo(() => {
     const advisories = [];
+
+    if (isolatedStations.length > 0) {
+      advisories.push(`${isolatedStations.length} proposed station${isolatedStations.length === 1 ? ' sits' : 's sit'} too far from any mapped corridor POI. Move those locations closer to a service area, interchange, logistics node, or major town before submission.`);
+      isolatedStations.slice(0, 3).forEach(({ station, placement }) => {
+        advisories.push(`${station.stationId}: ${placement.summary}`);
+      });
+    }
+
+    if (reviewStations.length > 0) {
+      advisories.push(`${reviewStations.length} station${reviewStations.length === 1 ? ' is' : 's are'} technically on-corridor but near the outer edge of the demand zone. Prefer a closer POI-linked placement when a better site exists.`);
+    }
+
     routeCoverageRows
       .filter((route) => route.status === 'blocked')
       .slice(0, 4)
@@ -571,7 +919,7 @@ export default function App() {
     }
 
     return advisories;
-  }, [heuristicDistributorCount, routeCoverageRows]);
+  }, [heuristicDistributorCount, isolatedStations, reviewStations, routeCoverageRows]);
 
   // ─── HANDLERS ────────────────────────────────────────────────────────
   const handleMapModeChange = useCallback((nextMode) => {
@@ -660,6 +1008,11 @@ export default function App() {
     const urbanZone = findUrbanExclusionZone(lat, lng);
     if (urbanZone) {
       return `Location falls inside the ${urbanZone.name} urban exclusion zone. Use an interurban corridor site.`;
+    }
+
+    const placement = evaluateStationPlacement({ ...candidate, lat, lng });
+    if (placement.status === 'isolated') {
+      return placement.summary;
     }
 
     return null;
@@ -928,6 +1281,11 @@ export default function App() {
         warnings.push(`${heuristicAssignments} friction point${heuristicAssignments === 1 ? ' uses' : 'use'} a route-based distributor proxy. Verify those assignments before final export.`);
       }
 
+      const isolatedImportedStations = importedStations.filter((station) => evaluateStationPlacement(station).status === 'isolated').length;
+      if (isolatedImportedStations > 0) {
+        warnings.push(`${isolatedImportedStations} imported station${isolatedImportedStations === 1 ? ' is' : 's are'} too far from any mapped corridor POI and must be repositioned before final export.`);
+      }
+
       setStations(importedStations);
       setHoveredStation(null);
       setEditingStation(null);
@@ -973,6 +1331,9 @@ export default function App() {
 
       const urbanZone = findUrbanExclusionZone(s.lat, s.lng);
       if (urbanZone) errors.push(`${s.stationId}: Located inside the ${urbanZone.name} urban exclusion zone`);
+
+      const placement = stationPlacementById.get(s.id) ?? evaluateStationPlacement(s);
+      if (placement.status === 'isolated') errors.push(`${s.stationId}: ${placement.summary}`);
     });
 
     afirBlockingRoutes.forEach((route) => {
@@ -982,7 +1343,7 @@ export default function App() {
     if (totalEVs2027 <= 0) errors.push('Total EVs 2027 must be positive');
     if (existingBaseline < 0) errors.push('Existing baseline stations cannot be negative');
     return errors;
-  }, [afirBlockingRoutes, existingBaseline, stations, totalEVs2027]);
+  }, [afirBlockingRoutes, existingBaseline, stationPlacementById, stations, totalEVs2027]);
 
   const exportFile1 = () => {
     const headers = [
@@ -1115,6 +1476,7 @@ export default function App() {
       lng: form.lng,
       routeSegment: form.routeSegment,
     });
+    const placementPreview = evaluateStationPlacement(form);
 
     return (
     <div className="space-y-4">
@@ -1173,6 +1535,31 @@ export default function App() {
             </div>
           </div>
         </FormField>
+      </div>
+      <div className={`${softSurfaceCls} p-4`}>
+        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">Traffic And POI Screen</p>
+            <p className="mt-1 text-sm font-semibold text-slate-900">
+              {placementPreview.trafficLabel} traffic corridor
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">{placementPreview.note}</p>
+          </div>
+          <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] ${
+            placementPreview.status === 'anchored'
+              ? 'bg-emerald-100 text-emerald-700'
+              : placementPreview.status === 'isolated'
+                ? 'bg-red-100 text-red-700'
+                : 'bg-amber-100 text-amber-700'
+          }`}>
+            {placementPreview.status === 'anchored'
+              ? 'Anchored'
+              : placementPreview.status === 'isolated'
+                ? 'Relocate'
+                : 'Review'}
+          </span>
+        </div>
+        <p className="mt-2 text-xs leading-5 text-slate-600">{placementPreview.summary}</p>
       </div>
       <div className="flex justify-end gap-3 pt-2">
         <button onClick={() => { setShowAddModal(false); setEditingStation(null); setForm({ ...emptyForm }); }}
@@ -1271,6 +1658,11 @@ export default function App() {
                 label: 'Grid bottlenecks',
                 value: `${kpis.frictionPoints.length} friction point${kpis.frictionPoints.length === 1 ? '' : 's'}`,
                 detail: kpis.frictionPoints.length === 0 ? 'No Moderate or Congested stations are currently flagged.' : 'Moderate and Congested stations remain visible in the risk workflow and export controls.',
+              },
+              {
+                label: 'Remote-site screen',
+                value: isolatedStations.length === 0 ? 'No isolated locations' : `${isolatedStations.length} location${isolatedStations.length === 1 ? '' : 's'} must move closer to a corridor POI`,
+                detail: 'The siting screen now blocks proposals that are too far from service areas, logistics nodes, tourism hubs, or major interchanges.',
               },
               {
                 label: 'Corridor spacing gate',
@@ -1379,9 +1771,13 @@ export default function App() {
                 </div>
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
                   <span>{route.stationCount} station{route.stationCount === 1 ? '' : 's'}</span>
+                  <span>{route.trafficLabel} traffic</span>
                   {route.distributors.length > 0 && <span>Distributors: {route.distributors.join(', ')}</span>}
                   {route.heuristicAssignments > 0 && <span className="text-amber-700">{route.heuristicAssignments} proxy assignment{route.heuristicAssignments === 1 ? '' : 's'} to verify</span>}
+                  {route.isolatedCount > 0 && <span className="text-red-700">{route.isolatedCount} isolated site{route.isolatedCount === 1 ? '' : 's'}</span>}
+                  {route.reviewCount > 0 && <span className="text-amber-700">{route.reviewCount} edge-case site{route.reviewCount === 1 ? '' : 's'}</span>}
                 </div>
+                <p className="mt-2 text-[11px] text-slate-500">{route.trafficNote}</p>
                 {route.largestGap.from && route.largestGap.to && (
                   <p className="mt-2 text-[11px] text-slate-500">
                     Largest interval: {route.largestGap.from.stationId} to {route.largestGap.to.stationId}. The extra {AFIR_TEN_T_EXIT_ALLOWANCE_KM} km exit allowance is included in this internal spacing check.
@@ -1631,6 +2027,11 @@ export default function App() {
                 detail: 'Every station remains connected to its corridor code for the export schema and map table.',
               },
               {
+                label: 'POI siting gate',
+                value: isolatedStations.length === 0 ? 'All sites anchored' : `${isolatedStations.length} isolated site${isolatedStations.length === 1 ? '' : 's'}`,
+                detail: isolatedStations.length === 0 ? 'Every mapped station is tied to a route POI such as a service area, interchange, tourism hub, or logistics node.' : 'Relocate any isolated site before treating the network as submission-ready.',
+              },
+              {
                 label: 'Direct map actions',
                 value: `${stations.length} Google Maps shortcut${stations.length === 1 ? '' : 's'}`,
                 detail: 'Each projected location keeps an external Maps link in the table and the live map popup.',
@@ -1670,6 +2071,7 @@ export default function App() {
                 <th className="text-center px-5 py-3 font-medium">Power</th>
                 <th className="text-center px-5 py-3 font-medium">Grid Status</th>
                 <th className="text-center px-5 py-3 font-medium">Distributor</th>
+                <th className="text-left px-5 py-3 font-medium">Siting</th>
                 <th className="text-center px-5 py-3 font-medium">Google Maps</th>
                 <th className="text-right px-5 py-3 font-medium">Actions</th>
               </tr>
@@ -1677,6 +2079,7 @@ export default function App() {
             <tbody>
               {stations.map(s => {
                 const resolvedDistributor = getResolvedDistributor(s);
+                const placement = stationPlacementById.get(s.id) ?? evaluateStationPlacement(s);
                 return (
                 <tr key={s.id} className="border-b border-slate-200/80 transition hover:bg-slate-50/80"
                   onMouseEnter={() => setHoveredStation(s.id)} onMouseLeave={() => setHoveredStation(null)}>
@@ -1711,6 +2114,24 @@ export default function App() {
                       {resolvedDistributor.source === 'Imported' && <span className="text-[10px] text-sky-700">Imported</span>}
                     </div>
                   </td>
+                  <td className="px-5 py-3.5">
+                    <div className="space-y-1">
+                      <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] ${
+                        placement.status === 'anchored'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : placement.status === 'isolated'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {placement.status === 'anchored' ? 'Anchored' : placement.status === 'isolated' ? 'Relocate' : 'Review'}
+                      </span>
+                      <p className="text-[11px] leading-4 text-slate-500">
+                        {placement.nearestPoi
+                          ? `${placement.trafficLabel} traffic · ${placement.nearestPoi.name} at ${placement.nearestPoi.poiDistanceKm.toFixed(1)} km`
+                          : placement.summary}
+                      </p>
+                    </div>
+                  </td>
                   <td className="px-5 py-3.5 text-center">
                     <a
                       href={getGoogleMapsLocationUrl(s.lat, s.lng)}
@@ -1738,7 +2159,7 @@ export default function App() {
               })}
               {stations.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-5 py-12 text-center text-slate-400">
+                  <td colSpan={10} className="px-5 py-12 text-center text-slate-400">
                     <MapPin size={32} className="mx-auto mb-2 opacity-30" />
                     <p className="text-sm">No proposed stations loaded yet. Import File 2.csv to load the real corridor proposal or click "Add Station" to begin.</p>
                   </td>
@@ -1982,8 +2403,8 @@ export default function App() {
               },
               {
                 label: 'Planning pressure',
-                value: afirBlockingRoutes.length === 0 ? 'No blocked corridor routes' : `${afirBlockingRoutes.length} route${afirBlockingRoutes.length === 1 ? '' : 's'} blocked by team gate`,
-                detail: 'The internal corridor-spacing rule stays visible without altering the official PDF rules.',
+                value: isolatedStations.length === 0 ? (afirBlockingRoutes.length === 0 ? 'No blocked routes or isolated sites' : `${afirBlockingRoutes.length} route${afirBlockingRoutes.length === 1 ? '' : 's'} blocked by spacing`) : `${isolatedStations.length} isolated site${isolatedStations.length === 1 ? '' : 's'} plus ${afirBlockingRoutes.length} blocked route${afirBlockingRoutes.length === 1 ? '' : 's'}`,
+                detail: 'The internal corridor-spacing rule now sits alongside a route-POI screen that rejects stations placed too far from real demand anchors.',
               },
             ].map((item) => (
               <div key={item.label} className="rounded-[22px] border border-slate-200/90 bg-slate-50/85 p-4">
@@ -2048,6 +2469,7 @@ export default function App() {
           <p>File 3 includes only Moderate and Congested stations, with distributor network restricted to i-DE, Endesa, or Viesgo.</p>
           <p>estimated_demand_kw is calculated as n_chargers_proposed × 150 kW for every friction point.</p>
           <p>Urban-center coordinates are blocked to keep proposals focused on interurban corridors.</p>
+          <p>New siting screen: every proposed station must stay close to a route POI such as a service area, interchange, logistics node, tourism hub, or major town.</p>
           <p>The built app is configured for offline delivery with bundled data and relative asset paths, so it opens directly without login or installation.</p>
           <p>Internal team rule: every corridor gap must stay at or below {AFIR_LIGHT_DUTY_MAX_GAP_KM} km for the proposal to count as internally ready.</p>
           <p>Distributor assignments resolve from public research notes where available and otherwise fall back to a routing proxy that must be verified before export.</p>
