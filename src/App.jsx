@@ -90,10 +90,29 @@ const DISTRIBUTOR_RESEARCH_NOTES = [
   },
   {
     distributor: 'i-DE',
-    tone: 'heuristic',
-    summary: 'Use i-DE as the default assignment for interior corridors, then verify border municipalities before final delivery.',
+    tone: 'proxy',
+    summary: 'i-DE remains the interior-corridor routing proxy when File 3 does not provide a distributor; treat it as a planning assumption and verify border municipalities before export.',
   },
 ];
+
+const SPAIN_REFERENCE_DATA = {
+  electrifiedPassengerCars2024: 459225,
+  electrifiedPassengerCarShare2024: 1.7,
+  publicChargePointsOperational2024: 38725,
+  publicChargePointsAdded2024: 9424,
+  publicChargePointsUnavailable2024: 11446,
+  publicChargePointsPotential2024: 50171,
+  publicChargePointsPerMillion2024: 805,
+  euPublicChargePointsPerMillion2024: 1877,
+  totalLightDutyVehicles2024: 30852416,
+  alternativeFuelledLightDutyVehicles2025Q4: 922258,
+  alternativeFuelledLightDutyShare2024: 2.08,
+  targetEvs2030: 5000000,
+};
+
+const DEFAULT_EV_WAYPOINT_2027 = Math.round(
+  (SPAIN_REFERENCE_DATA.electrifiedPassengerCars2024 + SPAIN_REFERENCE_DATA.targetEvs2030) / 2
+);
 
 const URBAN_EXCLUSION_ZONES = [
   { name: 'Madrid', lat: 40.4168, lng: -3.7038, radiusKm: 25 },
@@ -418,8 +437,8 @@ export default function App() {
   const { toasts, addToast, dismissToast } = useToasts();
 
   // Project Setup
-  const [totalEVs2027, setTotalEVs2027] = useState(0);
-  const [existingBaseline, setExistingBaseline] = useState(0);
+  const [totalEVs2027, setTotalEVs2027] = useState(DEFAULT_EV_WAYPOINT_2027);
+  const [existingBaseline, setExistingBaseline] = useState(SPAIN_REFERENCE_DATA.publicChargePointsOperational2024);
   const [setupDone, setSetupDone] = useState(false);
 
   // Stations
@@ -548,7 +567,7 @@ export default function App() {
       });
 
     if (heuristicDistributorCount > 0) {
-      advisories.push(`${heuristicDistributorCount} friction point${heuristicDistributorCount === 1 ? ' uses' : 'use'} a research-based distributor default and must be verified before final submission.`);
+      advisories.push(`${heuristicDistributorCount} friction point${heuristicDistributorCount === 1 ? ' uses' : 'use'} a route-based distributor proxy and must be verified before final submission.`);
     }
 
     return advisories;
@@ -906,7 +925,7 @@ export default function App() {
 
       const heuristicAssignments = importedStations.filter((station) => station.distributorSource === 'Heuristic' && station.gridStatus !== 'Sufficient').length;
       if (heuristicAssignments > 0) {
-        warnings.push(`${heuristicAssignments} friction point${heuristicAssignments === 1 ? ' uses' : 'use'} a research-based distributor default. Verify those assignments before final export.`);
+        warnings.push(`${heuristicAssignments} friction point${heuristicAssignments === 1 ? ' uses' : 'use'} a route-based distributor proxy. Verify those assignments before final export.`);
       }
 
       setStations(importedStations);
@@ -1185,7 +1204,10 @@ export default function App() {
                 Spain interurban charging plan with corridor, grid, and submission readiness in one view.
               </h2>
               <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">
-                The dashboard is tuned for the datathon handoff: proposed charging locations, friction points, distributor defaults, and the submission-quality checks stay visible without leaving the planning surface.
+                The dashboard is tuned for the datathon handoff: proposed charging locations, friction points, distributor assignments, and the submission-quality checks stay visible without leaving the planning surface.
+              </p>
+              <p className="mt-3 max-w-xl text-xs leading-5 text-slate-500">
+                Reference baseline loaded: ANFAC reports 38,725 public charging points in service in Spain at end-2024, plus 11,446 additional points still unavailable; EAFO reports 922,258 alternative-fuelled light-duty vehicles by Q4 2025.
               </p>
               <div className="mt-5 flex flex-wrap gap-2.5">
                 {[
@@ -1242,8 +1264,8 @@ export default function App() {
             {[
               {
                 label: 'Submission files',
-                value: importStatus.file2Name ? 'Real outputs loaded' : 'Waiting for File 2.csv',
-                detail: 'Import File 1, File 2, and File 3 to mirror the final deliverable in-app.',
+                value: importStatus.file2Name ? 'Real outputs loaded' : 'Reference baseline active',
+                detail: 'Until the CSVs are imported, the dashboard uses ANFAC 2024 infrastructure figures and EAFO fleet totals as the planning baseline.',
               },
               {
                 label: 'Grid bottlenecks',
@@ -1254,6 +1276,11 @@ export default function App() {
                 label: 'Corridor spacing gate',
                 value: afirBlockingRoutes.length === 0 ? 'Within team tolerance' : `${afirBlockingRoutes.length} blocked route${afirBlockingRoutes.length === 1 ? '' : 's'}`,
                 detail: 'This remains an internal planning rule layered on top of the PDF-required checks.',
+              },
+              {
+                label: 'Reference demand anchor',
+                value: `${DEFAULT_EV_WAYPOINT_2027.toLocaleString()} vehicles for 2027`,
+                detail: `This default waypoint is the midpoint between ANFAC's 2024 electrified passenger-car park (${SPAIN_REFERENCE_DATA.electrifiedPassengerCars2024.toLocaleString()}) and Spain's 2030 target of ${SPAIN_REFERENCE_DATA.targetEvs2030.toLocaleString()} EVs.`,
               },
             ].map((item) => (
               <div key={item.label} className="rounded-[22px] border border-slate-200/90 bg-slate-50/85 p-4">
@@ -1276,16 +1303,16 @@ export default function App() {
               <Settings size={24} className="text-iberdrola-accent" />
             </div>
             <div className="flex-1">
-              <p className={sectionTitleCls}>Launch Parameters</p>
-              <h3 className="mb-1 text-xl font-semibold text-slate-950">Project setup</h3>
-              <p className="mb-4 text-sm text-slate-600">Configure the baseline values that anchor the 2027 EV infrastructure plan.</p>
-              <p className="mb-4 text-xs text-slate-500">Upload File 1.csv in Reports to hydrate these automatically from your real submission output.</p>
+              <p className={sectionTitleCls}>Reference Planning Baseline</p>
+              <h3 className="mb-1 text-xl font-semibold text-slate-950">Spain market snapshot already loaded</h3>
+              <p className="mb-3 text-sm text-slate-600">The default 2027 demand waypoint is set from real public figures instead of placeholder values. It uses ANFAC's 2024 electrified passenger-car park and Spain's 2030 five-million-EV target as the planning anchor.</p>
+              <p className="mb-4 text-xs leading-5 text-slate-500">Charger baseline: ANFAC counts {SPAIN_REFERENCE_DATA.publicChargePointsOperational2024.toLocaleString()} public points in service at end-2024, with {SPAIN_REFERENCE_DATA.publicChargePointsUnavailable2024.toLocaleString()} additional points identified but unavailable. Upload File 1.csv to override these references with your submission-specific totals.</p>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormField label="Total Projected EVs in 2027">
+                <FormField label="2027 Planning Waypoint">
                   <input className={inputCls} type="number" value={totalEVs2027}
                     onChange={e => setTotalEVs2027(parseInt(e.target.value) || 0)} />
                 </FormField>
-                <FormField label="Existing Baseline Chargers">
+                <FormField label="Public Chargers In Service, Spain 2024">
                   <input className={inputCls} type="number" value={existingBaseline}
                     onChange={e => setExistingBaseline(parseInt(e.target.value) || 0)} />
                 </FormField>
@@ -1306,8 +1333,8 @@ export default function App() {
           sublabel={`${kpis.totalChargers} chargers @ ${POWER_STANDARD_KW} kW`} />
         <KpiCard icon={AlertTriangle} label="Friction Points" value={kpis.frictionPoints.length} color={kpis.frictionPoints.length > 0 ? 'red' : 'emerald'}
           sublabel={kpis.frictionPoints.length > 0 ? `${kpis.frictionPoints.filter(f => f.gridStatus === 'Congested').length} critical` : 'All stations clear'} />
-        <KpiCard icon={Target} label="Projected EVs 2027" value={totalEVs2027.toLocaleString()} color="violet"
-          sublabel={`Baseline: ${existingBaseline.toLocaleString()} chargers`} />
+        <KpiCard icon={Target} label="2027 Planning Waypoint" value={totalEVs2027.toLocaleString()} color="violet"
+          sublabel={`Baseline: ${existingBaseline.toLocaleString()} public chargers in service`} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
@@ -1353,7 +1380,7 @@ export default function App() {
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
                   <span>{route.stationCount} station{route.stationCount === 1 ? '' : 's'}</span>
                   {route.distributors.length > 0 && <span>Distributors: {route.distributors.join(', ')}</span>}
-                  {route.heuristicAssignments > 0 && <span className="text-amber-700">{route.heuristicAssignments} default assignment{route.heuristicAssignments === 1 ? '' : 's'} to verify</span>}
+                  {route.heuristicAssignments > 0 && <span className="text-amber-700">{route.heuristicAssignments} proxy assignment{route.heuristicAssignments === 1 ? '' : 's'} to verify</span>}
                 </div>
                 {route.largestGap.from && route.largestGap.to && (
                   <p className="mt-2 text-[11px] text-slate-500">
@@ -1377,7 +1404,7 @@ export default function App() {
                   <span className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${
                     note.tone === 'official' ? 'text-emerald-700' : 'text-amber-700'
                   }`}>
-                    {note.tone === 'official' ? 'Public source' : 'Territory default'}
+                    {note.tone === 'official' ? 'Public source' : 'Routing proxy'}
                   </span>
                 </div>
                 <p className="text-xs leading-relaxed text-slate-600">{note.summary}</p>
@@ -1397,7 +1424,7 @@ export default function App() {
             })}
           </div>
           <p className="mt-4 text-xs leading-relaxed text-slate-500">
-            Use these defaults for assignment, then verify border provinces and municipalities served by other Spanish DSOs before final delivery.
+            Use the public-source notes where available and treat i-DE as a routing proxy until File 3 confirms the final DSO for each friction point.
           </p>
         </div>
       </div>
@@ -1680,7 +1707,7 @@ export default function App() {
                   <td className="px-5 py-3.5 text-center">
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-xs font-medium text-slate-900">{resolvedDistributor.distributor || 'Not required'}</span>
-                      {resolvedDistributor.source === 'Heuristic' && <span className="text-[10px] text-amber-700">Defaulted</span>}
+                      {resolvedDistributor.source === 'Heuristic' && <span className="text-[10px] text-amber-700">Proxy</span>}
                       {resolvedDistributor.source === 'Imported' && <span className="text-[10px] text-sky-700">Imported</span>}
                     </div>
                   </td>
@@ -1713,7 +1740,7 @@ export default function App() {
                 <tr>
                   <td colSpan={9} className="px-5 py-12 text-center text-slate-400">
                     <MapPin size={32} className="mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">No stations loaded yet. Import File 2.csv or click "Add Station" to begin.</p>
+                    <p className="text-sm">No proposed stations loaded yet. Import File 2.csv to load the real corridor proposal or click "Add Station" to begin.</p>
                   </td>
                 </tr>
               )}
@@ -1945,8 +1972,8 @@ export default function App() {
             {[
               {
                 label: 'Import status',
-                value: importStatus.file2Name ? 'Real submission files loaded' : 'Awaiting File 2.csv import',
-                detail: 'File 2 is the anchor dataset, while File 1 and File 3 complete the KPI and friction answer set.',
+                value: importStatus.file2Name ? 'Real submission files loaded' : 'Reference KPI baseline in use',
+                detail: 'File 2 is the anchor dataset, while File 1 overrides the ANFAC-based KPI defaults and File 3 completes the friction answer set.',
               },
               {
                 label: 'PDF alignment',
@@ -1981,7 +2008,7 @@ export default function App() {
             <div>
               <h3 className={`${sectionTitleCls} mb-2`}>Import Real Submission Files</h3>
               <p className="max-w-2xl text-sm text-slate-600">
-                Upload File 2.csv to replace the seeded network. File 1.csv hydrates projected EVs and baseline counts, while File 3.csv enriches Moderate and Congested stations with distributor data.
+                Upload File 2.csv to load the proposal you actually plan to submit. File 1.csv overrides the reference KPI baseline, while File 3.csv enriches Moderate and Congested stations with distributor data.
               </p>
             </div>
           </div>
@@ -2023,7 +2050,7 @@ export default function App() {
           <p>Urban-center coordinates are blocked to keep proposals focused on interurban corridors.</p>
           <p>The built app is configured for offline delivery with bundled data and relative asset paths, so it opens directly without login or installation.</p>
           <p>Internal team rule: every corridor gap must stay at or below {AFIR_LIGHT_DUTY_MAX_GAP_KM} km for the proposal to count as internally ready.</p>
-          <p>Distributor defaults resolve from public research notes and must be verified before export when a friction point uses a territory default.</p>
+          <p>Distributor assignments resolve from public research notes where available and otherwise fall back to a routing proxy that must be verified before export.</p>
         </div>
       </div>
 
