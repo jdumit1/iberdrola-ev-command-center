@@ -3,18 +3,50 @@
 @tailwind utilities;
 
 @layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at top left, rgba(163, 209, 51, 0.18), transparent 28%),
+      radial-gradient(circle at top right, rgba(14, 165, 233, 0.1), transparent 26%),
+      linear-gradient(180deg, #f7fafc 0%, #edf4f7 48%, #e7eef4 100%);
+    color: #0f172a;
+    font-feature-settings: 'ss01' on, 'cv01' on;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.28), transparent 82%);
+  }
+
+  ::selection {
+    background: rgba(163, 209, 51, 0.3);
+    color: #0f172a;
+  }
+
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.35);
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(0, 86, 63, 0.4);
+    background: rgba(0, 86, 63, 0.28);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 86, 63, 0.7);
+    background: rgba(0, 86, 63, 0.5);
   }
 }

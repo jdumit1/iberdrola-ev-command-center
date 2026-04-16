@@ -399,18 +399,18 @@ const ToastContainer = ({ toasts, onDismiss }) => (
   <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2 max-w-sm">
     {toasts.map(t => (
       <div key={t.id}
-        className={`flex items-start gap-3 px-4 py-3 rounded-xl shadow-2xl border backdrop-blur-xl animate-slide-in
-          ${t.type === 'success' ? 'bg-emerald-950/90 border-emerald-700/50 text-emerald-100' :
-            t.type === 'error' ? 'bg-red-950/90 border-red-700/50 text-red-100' :
-            t.type === 'warning' ? 'bg-amber-950/90 border-amber-700/50 text-amber-100' :
-            'bg-gray-900/90 border-gray-700/50 text-gray-100'}`}
+        className={`flex items-start gap-3 rounded-2xl border px-4 py-3 shadow-[0_20px_50px_rgba(15,23,42,0.12)] backdrop-blur-xl animate-slide-in
+          ${t.type === 'success' ? 'border-emerald-200 bg-white/95 text-emerald-900' :
+            t.type === 'error' ? 'border-red-200 bg-white/95 text-red-900' :
+            t.type === 'warning' ? 'border-amber-200 bg-white/95 text-amber-900' :
+            'border-slate-200 bg-white/95 text-slate-900'}`}
       >
-        {t.type === 'success' ? <CheckCircle2 size={18} className="text-emerald-400 mt-0.5 shrink-0" /> :
-         t.type === 'error' ? <XCircle size={18} className="text-red-400 mt-0.5 shrink-0" /> :
-         t.type === 'warning' ? <AlertCircle size={18} className="text-amber-400 mt-0.5 shrink-0" /> :
-         <Info size={18} className="text-blue-400 mt-0.5 shrink-0" />}
+        {t.type === 'success' ? <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600" /> :
+         t.type === 'error' ? <XCircle size={18} className="mt-0.5 shrink-0 text-red-600" /> :
+         t.type === 'warning' ? <AlertCircle size={18} className="mt-0.5 shrink-0 text-amber-600" /> :
+         <Info size={18} className="mt-0.5 shrink-0 text-sky-600" />}
         <p className="text-sm font-medium flex-1">{t.message}</p>
-        <button onClick={() => onDismiss(t.id)} className="text-white/40 hover:text-white/80 transition">
+        <button onClick={() => onDismiss(t.id)} className="text-slate-400 transition hover:text-slate-700">
           <X size={14} />
         </button>
       </div>
@@ -437,14 +437,14 @@ const Modal = ({ open, onClose, title, children, size = 'md' }) => {
   const sizes = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' };
   return (
     <div className="fixed inset-0 z-[9998] flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-slate-900/25 backdrop-blur-sm" />
       <div
-        className={`relative ${sizes[size]} w-full bg-gray-900 border border-gray-700/50 rounded-2xl shadow-2xl animate-modal-in`}
+        className={`relative ${sizes[size]} w-full rounded-[30px] border border-slate-200 bg-white/96 shadow-[0_32px_90px_rgba(15,23,42,0.18)] animate-modal-in`}
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-white transition p-1 rounded-lg hover:bg-gray-800">
+        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+          <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+          <button onClick={onClose} className="rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-900">
             <X size={18} />
           </button>
         </div>
@@ -457,27 +457,28 @@ const Modal = ({ open, onClose, title, children, size = 'md' }) => {
 // ─── KPI CARD ────────────────────────────────────────────────────────────
 const KpiCard = ({ icon: Icon, label, value, sublabel, color = 'emerald', trend }) => {
   const colorMap = {
-    emerald: 'from-emerald-500/20 to-emerald-600/5 border-emerald-500/20 text-emerald-400',
-    amber: 'from-amber-500/20 to-amber-600/5 border-amber-500/20 text-amber-400',
-    yellow: 'from-yellow-500/20 to-yellow-600/5 border-yellow-500/20 text-yellow-400',
-    red: 'from-red-500/20 to-red-600/5 border-red-500/20 text-red-400',
-    blue: 'from-blue-500/20 to-blue-600/5 border-blue-500/20 text-blue-400',
-    violet: 'from-violet-500/20 to-violet-600/5 border-violet-500/20 text-violet-400',
+    emerald: 'from-emerald-100 via-white to-emerald-50 border-emerald-200 text-emerald-700',
+    amber: 'from-amber-100 via-white to-amber-50 border-amber-200 text-amber-700',
+    yellow: 'from-yellow-100 via-white to-yellow-50 border-yellow-200 text-yellow-700',
+    red: 'from-red-100 via-white to-red-50 border-red-200 text-red-700',
+    blue: 'from-sky-100 via-white to-cyan-50 border-sky-200 text-sky-700',
+    violet: 'from-violet-100 via-white to-fuchsia-50 border-violet-200 text-violet-700',
   };
   return (
-    <div className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br ${colorMap[color]} backdrop-blur-xl p-5 transition-all duration-300 hover:scale-[1.02] group`}>
+    <div className={`group relative overflow-hidden rounded-[28px] border bg-gradient-to-br ${colorMap[color]} p-5 shadow-[0_20px_50px_rgba(148,163,184,0.14)] transition-all duration-300 hover:-translate-y-1`}>
+      <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">{label}</p>
-          <p className="text-3xl font-bold text-white tabular-nums">{value}</p>
-          {sublabel && <p className="text-xs text-gray-400 mt-1">{sublabel}</p>}
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">{label}</p>
+          <p className="text-3xl font-bold text-slate-950 tabular-nums">{value}</p>
+          {sublabel && <p className="mt-1 text-xs text-slate-500">{sublabel}</p>}
         </div>
-        <div className={`p-2.5 rounded-xl bg-white/5 group-hover:bg-white/10 transition`}>
+        <div className="rounded-2xl bg-white/80 p-2.5 shadow-sm transition group-hover:bg-white">
           <Icon size={22} />
         </div>
       </div>
       {trend && (
-        <div className="flex items-center gap-1 mt-3 text-xs">
+        <div className="mt-3 flex items-center gap-1 text-xs text-slate-600">
           <TrendingUp size={12} />
           <span>{trend}</span>
         </div>
@@ -515,15 +516,15 @@ const SpainMap = ({ stations, hoveredStation, setHoveredStation, minHeight = 350
   };
 
   return (
-    <div className="relative w-full bg-gray-900/50 rounded-2xl border border-gray-800/50 overflow-hidden">
+    <div className="relative w-full overflow-hidden rounded-[28px] border border-slate-200 bg-white/90 shadow-[0_24px_60px_rgba(148,163,184,0.12)]">
       <div className="absolute top-4 left-4 z-10 flex items-center gap-4">
-        <span className="flex items-center gap-1.5 text-xs text-gray-400">
+        <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Sufficient
         </span>
-        <span className="flex items-center gap-1.5 text-xs text-gray-400">
+        <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
           <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" /> Moderate
         </span>
-        <span className="flex items-center gap-1.5 text-xs text-gray-400">
+        <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
           <span className="w-2.5 h-2.5 rounded-full bg-red-500" /> Congested
         </span>
       </div>
@@ -545,7 +546,7 @@ const SpainMap = ({ stations, hoveredStation, setHoveredStation, minHeight = 350
         {/* Simplified Spain outline */}
         <path
           d="M60,55 L110,40 L170,45 L230,50 L280,48 L340,55 L390,70 L410,95 L420,140 L430,190 L420,205 L380,240 L350,265 L330,290 L300,310 L260,340 L220,355 L180,350 L140,325 L110,300 L85,265 L65,230 L55,190 L50,150 L45,110 Z"
-          fill="rgba(0,86,63,0.08)" stroke="rgba(0,86,63,0.3)" strokeWidth="1.5"
+          fill="rgba(0,86,63,0.06)" stroke="rgba(148,163,184,0.48)" strokeWidth="1.5"
         />
 
         {/* Region circles */}
@@ -555,7 +556,7 @@ const SpainMap = ({ stations, hoveredStation, setHoveredStation, minHeight = 350
             <g key={r.id}>
               <circle cx={r.cx} cy={r.cy} r={r.r} fill={colors.fill} stroke={colors.stroke} strokeWidth="1" opacity="0.7" />
               <text x={r.cx} y={r.cy + 1} textAnchor="middle" dominantBaseline="middle"
-                className="text-[7px] fill-gray-500 font-medium pointer-events-none select-none">
+                className="text-[7px] fill-slate-500 font-medium pointer-events-none select-none">
                 {r.id}
               </text>
             </g>
@@ -601,7 +602,7 @@ const SpainMap = ({ stations, hoveredStation, setHoveredStation, minHeight = 350
         })}
 
         {stations.length === 0 && (
-          <text x="240" y="200" textAnchor="middle" className="text-[12px] fill-gray-600 font-medium">
+          <text x="240" y="200" textAnchor="middle" className="text-[12px] fill-slate-500 font-medium">
             Import File 2.csv or add stations to see them on the map
           </text>
         )}
@@ -612,28 +613,28 @@ const SpainMap = ({ stations, hoveredStation, setHoveredStation, minHeight = 350
 
 const MapModeToggle = ({ mapMode, onChange, googleMapsConfigured }) => (
   <div className="flex flex-wrap items-center gap-2">
-    <div className="inline-flex rounded-xl border border-gray-800/60 bg-gray-900/70 p-1">
+    <div className="inline-flex rounded-2xl border border-slate-200 bg-white/85 p-1 shadow-sm">
       <button
         onClick={() => onChange('offline')}
-        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-          mapMode === 'offline' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'
+        className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+          mapMode === 'offline' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'
         }`}
       >
         Offline Map
       </button>
       <button
         onClick={() => onChange('google')}
-        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-          mapMode === 'google' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'
+        className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+          mapMode === 'google' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'
         }`}
       >
         Google Maps
       </button>
     </div>
-    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider ${
+    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.2em] ${
       googleMapsConfigured
-        ? 'border-emerald-800/40 bg-emerald-950/20 text-emerald-300'
-        : 'border-amber-800/40 bg-amber-950/20 text-amber-300'
+        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+        : 'border-amber-200 bg-amber-50 text-amber-700'
     }`}>
       {googleMapsConfigured ? 'API key loaded from .env' : 'API key required'}
     </span>
@@ -641,10 +642,10 @@ const MapModeToggle = ({ mapMode, onChange, googleMapsConfigured }) => (
 );
 
 const MapModeNotice = ({ mapMode, message }) => (
-  <div className={`rounded-xl border px-3.5 py-2.5 text-xs ${
+  <div className={`rounded-2xl border px-3.5 py-2.5 text-xs shadow-sm ${
     mapMode === 'google'
-      ? 'border-amber-800/30 bg-amber-950/20 text-amber-200'
-      : 'border-blue-800/30 bg-blue-950/20 text-blue-200'
+      ? 'border-amber-200 bg-amber-50/90 text-amber-800'
+      : 'border-sky-200 bg-sky-50/90 text-sky-800'
   }`}>
     {message}
   </div>
@@ -702,14 +703,14 @@ const GoogleStationMap = ({ stations, hoveredStation, setHoveredStation, height 
   if (!isLoaded) {
     return (
       <div
-        className="relative w-full overflow-hidden rounded-2xl border border-gray-800/50 bg-gray-900/50"
+        className="relative w-full overflow-hidden rounded-[28px] border border-slate-200 bg-white/90 shadow-[0_24px_60px_rgba(148,163,184,0.12)]"
         style={{ minHeight: height }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(163,209,51,0.08),transparent_55%)]" />
         <div className="relative flex h-full min-h-[inherit] items-center justify-center px-6 text-center">
           <div>
-            <p className="text-sm font-semibold text-white">Loading Google Maps</p>
-            <p className="mt-1 text-xs text-gray-400">Fetching live map tiles and rendering station markers.</p>
+            <p className="text-sm font-semibold text-slate-900">Loading Google Maps</p>
+            <p className="mt-1 text-xs text-slate-500">Fetching live map tiles and rendering station markers.</p>
           </div>
         </div>
       </div>
@@ -723,20 +724,20 @@ const GoogleStationMap = ({ stations, hoveredStation, setHoveredStation, height 
   }
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-gray-800/50 bg-gray-900/50">
-      <div className="absolute left-4 top-4 z-10 flex flex-wrap items-center gap-3 rounded-xl border border-gray-800/70 bg-gray-950/85 px-3 py-2 shadow-xl">
+    <div className="relative w-full overflow-hidden rounded-[28px] border border-slate-200 bg-white/90 shadow-[0_24px_60px_rgba(148,163,184,0.12)]">
+      <div className="absolute left-4 top-4 z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white/95 px-3 py-2 shadow-xl">
         {GRID_STATUS_OPTIONS.map(option => (
-          <span key={option.value} className="flex items-center gap-1.5 text-xs text-gray-300">
+          <span key={option.value} className="flex items-center gap-1.5 text-xs font-medium text-slate-600">
             <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: getGridColorHex(option.value) }} />
             {option.label}
           </span>
         ))}
       </div>
-      <div className="absolute right-4 top-4 z-10 rounded-xl border border-amber-800/40 bg-amber-950/70 px-3 py-2 text-[11px] font-medium text-amber-200 shadow-xl">
+      <div className="absolute right-4 top-4 z-10 rounded-2xl border border-amber-200 bg-amber-50/95 px-3 py-2 text-[11px] font-medium text-amber-800 shadow-xl">
         Google Maps is using the .env API key and requires internet access at runtime
       </div>
       {stations.length === 0 && (
-        <div className="absolute inset-x-4 bottom-4 z-10 rounded-xl border border-gray-800/70 bg-gray-950/85 px-4 py-3 text-center text-xs text-gray-300 shadow-xl">
+        <div className="absolute inset-x-4 bottom-4 z-10 rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 text-center text-xs text-slate-600 shadow-xl">
           Import File 2.csv or add stations manually to populate the live map.
         </div>
       )}
@@ -782,10 +783,10 @@ const GoogleStationMap = ({ stations, hoveredStation, setHoveredStation, height 
             position={{ lat: activeStation.lat, lng: activeStation.lng }}
             onCloseClick={() => setHoveredStation(null)}
           >
-            <div className="min-w-[220px] pr-1 text-gray-900">
+            <div className="min-w-[220px] pr-1 text-slate-900">
               <p className="text-sm font-semibold">{activeStation.stationId}</p>
-              <p className="mt-1 text-xs text-gray-600">{getRouteLabel(activeStation.routeSegment)}</p>
-              <div className="mt-3 space-y-1 text-xs text-gray-700">
+              <p className="mt-1 text-xs text-slate-500">{getRouteLabel(activeStation.routeSegment)}</p>
+              <div className="mt-3 space-y-1 text-xs text-slate-600">
                 <p>{activeStation.numChargers} chargers</p>
                 <p>{activeStation.numChargers * POWER_STANDARD_KW} kW required capacity</p>
                 <p>Grid status: {activeStation.gridStatus}</p>
@@ -797,7 +798,7 @@ const GoogleStationMap = ({ stations, hoveredStation, setHoveredStation, height 
                 href={getGoogleMapsLocationUrl(activeStation.lat, activeStation.lng)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 inline-flex items-center gap-1 rounded-md bg-gray-900 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-gray-800"
+                className="mt-3 inline-flex items-center gap-1 rounded-xl bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-slate-800"
               >
                 <Navigation size={12} /> Open in Google Maps
               </a>
@@ -1425,21 +1426,50 @@ export default function App() {
   // ─── NAV ITEMS ───────────────────────────────────────────────────────
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'map', label: 'Network Map', icon: Map },
-    { id: 'friction', label: 'Friction Analysis', icon: AlertTriangle },
-    { id: 'export', label: 'Export Center', icon: Download },
+    { id: 'map', label: 'Map Explorer', icon: Map },
+    { id: 'friction', label: 'Risk & Friction', icon: AlertTriangle },
+    { id: 'export', label: 'Reports', icon: Download },
   ];
+
+  const pageMeta = {
+    dashboard: {
+      eyebrow: 'Program Control',
+      title: 'Strategic infrastructure dashboard',
+      summary: 'Track corridor readiness, distributor coverage, and the 2027 EV deployment posture in one place.',
+    },
+    map: {
+      eyebrow: 'Spatial Intelligence',
+      title: 'Corridor map explorer',
+      summary: 'Inspect proposed charging locations, geospatial coverage, and direct links into Google Maps.',
+    },
+    friction: {
+      eyebrow: 'Risk Control',
+      title: 'Grid friction analysis',
+      summary: 'Prioritize constrained stations, distributor coordination, and the deployment sequence for grid-heavy sites.',
+    },
+    export: {
+      eyebrow: 'Submission Room',
+      title: 'Reports and datathon delivery',
+      summary: 'Validate imported outputs, review PDF rule alignment, and export the three required CSV files.',
+    },
+  };
 
   // ─── FORM INPUT COMPONENT ────────────────────────────────────────────
   const FormField = ({ label, children, className = '' }) => (
     <div className={className}>
-      <label className="block text-xs font-medium text-gray-400 mb-1.5">{label}</label>
+      <label className="mb-1.5 block text-xs font-medium text-slate-500">{label}</label>
       {children}
     </div>
   );
 
-  const inputCls = "w-full bg-gray-800/80 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-iberdrola-500 focus:ring-1 focus:ring-iberdrola-500/30 transition";
-  const selectCls = "w-full bg-gray-800/80 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-iberdrola-500 focus:ring-1 focus:ring-iberdrola-500/30 transition appearance-none";
+  const inputCls = "w-full rounded-2xl border border-slate-200 bg-white/90 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 shadow-sm transition focus:border-iberdrola-500 focus:outline-none focus:ring-2 focus:ring-iberdrola-500/20";
+  const selectCls = "w-full appearance-none rounded-2xl border border-slate-200 bg-white/90 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-iberdrola-500 focus:outline-none focus:ring-2 focus:ring-iberdrola-500/20";
+  const surfaceCls = "rounded-[30px] border border-slate-200/90 bg-white/88 shadow-[0_20px_60px_rgba(148,163,184,0.16)] backdrop-blur-xl";
+  const softSurfaceCls = "rounded-[24px] border border-slate-200/90 bg-slate-50/85";
+  const sectionTitleCls = "text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500";
+  const primaryButtonCls = "inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(15,23,42,0.16)] transition hover:bg-slate-800";
+  const accentButtonCls = "inline-flex items-center gap-2 rounded-2xl bg-iberdrola-accent px-5 py-2.5 text-sm font-semibold text-iberdrola-900 shadow-[0_16px_35px_rgba(163,209,51,0.28)] transition hover:bg-iberdrola-accent-light";
+  const ghostButtonCls = "inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-white";
 
   // ─── STATION FORM (shared) ───────────────────────────────────────────
   const StationForm = ({ onSubmit, submitLabel }) => {
@@ -1490,7 +1520,7 @@ export default function App() {
             <option value="">Auto-suggest from location</option>
             {DISTRIBUTOR_NETWORK_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
           </select>
-          <p className="mt-1 text-[11px] leading-relaxed text-gray-500">
+          <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
             {form.gridStatus === 'Sufficient'
               ? 'Optional for grid-ready stations. Moderate and Congested sites will use this value or the territory heuristic.'
               : distributorSuggestion.distributor
@@ -1500,8 +1530,8 @@ export default function App() {
         </FormField>
         <FormField label="Power per Charger">
           <div className="flex items-center gap-2">
-            <input className={`${inputCls} bg-gray-800/40`} value={`${POWER_STANDARD_KW} kW`} disabled />
-            <div className="flex items-center gap-1 text-emerald-400 text-xs whitespace-nowrap">
+            <input className={`${inputCls} bg-slate-100 text-slate-500`} value={`${POWER_STANDARD_KW} kW`} disabled />
+            <div className="flex items-center gap-1 whitespace-nowrap text-xs text-emerald-600">
               <Shield size={12} /> Compliant
             </div>
           </div>
@@ -1509,11 +1539,11 @@ export default function App() {
       </div>
       <div className="flex justify-end gap-3 pt-2">
         <button onClick={() => { setShowAddModal(false); setEditingStation(null); setForm({ ...emptyForm }); }}
-          className="px-4 py-2.5 rounded-xl text-sm font-medium text-gray-300 bg-gray-800 hover:bg-gray-700 transition">
+          className={ghostButtonCls}>
           Cancel
         </button>
         <button onClick={onSubmit}
-          className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-iberdrola-700 hover:bg-iberdrola-600 text-white transition flex items-center gap-2">
+          className={primaryButtonCls}>
           <Check size={16} /> {submitLabel}
         </button>
       </div>
@@ -1526,18 +1556,18 @@ export default function App() {
   // DASHBOARD
   const DashboardPage = () => (
     <div className="space-y-6">
-      {/* Project Setup */}
       {!setupDone && (
-        <div className="bg-gradient-to-r from-iberdrola-900/40 to-gray-900/60 border border-iberdrola-700/30 rounded-2xl p-6">
+        <div className="rounded-[32px] border border-emerald-200/80 bg-[linear-gradient(135deg,rgba(163,209,51,0.22),rgba(255,255,255,0.96),rgba(14,165,233,0.08))] p-6 shadow-[0_24px_60px_rgba(148,163,184,0.14)]">
           <div className="flex items-start gap-4">
-            <div className="p-3 rounded-xl bg-iberdrola-700/30">
+            <div className="rounded-2xl bg-slate-900 p-3 text-white shadow-lg">
               <Settings size={24} className="text-iberdrola-accent" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-white mb-1">Project Setup</h3>
-              <p className="text-sm text-gray-400 mb-4">Configure baseline parameters for the 2027 EV infrastructure plan.</p>
-              <p className="text-xs text-gray-500 mb-4">Upload File 1.csv in the Import & Export Center to populate these automatically from your real submission output.</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <p className={sectionTitleCls}>Launch Parameters</p>
+              <h3 className="mb-1 text-xl font-semibold text-slate-950">Project setup</h3>
+              <p className="mb-4 text-sm text-slate-600">Configure the baseline values that anchor the 2027 EV infrastructure plan.</p>
+              <p className="mb-4 text-xs text-slate-500">Upload File 1.csv in Reports to hydrate these automatically from your real submission output.</p>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField label="Total Projected EVs in 2027">
                   <input className={inputCls} type="number" value={totalEVs2027}
                     onChange={e => setTotalEVs2027(parseInt(e.target.value) || 0)} />
@@ -1548,7 +1578,7 @@ export default function App() {
                 </FormField>
               </div>
               <button onClick={() => { setSetupDone(true); addToast('Baseline configured successfully', 'success'); }}
-                className="mt-4 px-5 py-2.5 rounded-xl text-sm font-semibold bg-iberdrola-accent text-iberdrola-900 hover:bg-iberdrola-accent-light transition flex items-center gap-2">
+                className={`mt-4 ${accentButtonCls}`}>
                 <Check size={16} /> Confirm Setup
               </button>
             </div>
@@ -1556,8 +1586,7 @@ export default function App() {
         </div>
       )}
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <KpiCard icon={MapPin} label="Total Stations" value={kpis.totalStations} color="emerald"
           sublabel={`${kpis.avgChargersPerStation} avg chargers/station`} />
         <KpiCard icon={Zap} label="Total Capacity" value={`${(kpis.totalCapacity / 1000).toFixed(1)} MW`} color="blue"
@@ -1568,53 +1597,53 @@ export default function App() {
           sublabel={`Baseline: ${existingBaseline.toLocaleString()} chargers`} />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-5">
-          <div className="flex items-start justify-between gap-3 mb-4">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className={`${surfaceCls} p-5`}>
+          <div className="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Corridor Spacing Check (Team Assumption)</h3>
-              <p className="mt-1 text-xs text-gray-500">This optional planning gate uses a {AFIR_LIGHT_DUTY_MAX_GAP_KM} km spacing reference from EU guidance. It is a team quality rule, not a PDF disqualification rule.</p>
+              <h3 className={sectionTitleCls}>Corridor Spacing Check (Team Assumption)</h3>
+              <p className="mt-1 text-xs text-slate-500">This optional planning gate uses a {AFIR_LIGHT_DUTY_MAX_GAP_KM} km spacing reference from EU guidance. It is a team quality rule, not a PDF disqualification rule.</p>
             </div>
-            <div className="rounded-xl border border-blue-800/40 bg-blue-950/20 px-3 py-2 text-right">
-              <p className="text-[10px] uppercase tracking-wider text-blue-300">EU Reference Ratios</p>
-              <p className="text-xs text-gray-300">{AFIR_PUBLIC_POWER_PER_BEV_KW} kW per BEV / {AFIR_PUBLIC_POWER_PER_PHEV_KW} kW per PHEV</p>
+            <div className="rounded-2xl border border-sky-200 bg-sky-50 px-3 py-2 text-right">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-sky-700">EU Reference Ratios</p>
+              <p className="text-xs text-slate-700">{AFIR_PUBLIC_POWER_PER_BEV_KW} kW per BEV / {AFIR_PUBLIC_POWER_PER_PHEV_KW} kW per PHEV</p>
             </div>
           </div>
           <div className="space-y-3">
             {routeCoverageRows.length === 0 ? (
-              <p className="text-sm text-gray-500">Import File 2.csv or add stations to start evaluating route spacing.</p>
+              <p className="text-sm text-slate-500">Import File 2.csv or add stations to start evaluating route spacing.</p>
             ) : routeCoverageRows.slice(0, 6).map((route) => (
-              <div key={route.code} className="rounded-xl border border-gray-800/50 bg-black/10 p-4">
+              <div key={route.code} className={`${softSurfaceCls} p-4`}>
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-white">{route.code}</span>
-                      <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                      <span className="text-sm font-semibold text-slate-900">{route.code}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] ${
                         route.status === 'aligned'
-                          ? 'bg-emerald-500/20 text-emerald-400'
+                          ? 'bg-emerald-100 text-emerald-700'
                           : route.status === 'blocked'
-                            ? 'bg-red-500/20 text-red-400'
-                            : 'bg-gray-700/40 text-gray-300'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-slate-200 text-slate-700'
                       }`}>
                         {route.status === 'aligned' ? 'Aligned' : route.status === 'blocked' ? 'Blocked' : 'Need More Stops'}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">{route.label}</p>
+                    <p className="mt-1 text-xs text-slate-500">{route.label}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-gray-500">Largest Gap</p>
-                    <p className="text-sm font-semibold text-white">
+                    <p className="text-xs text-slate-500">Largest Gap</p>
+                    <p className="text-sm font-semibold text-slate-900">
                       {route.stationCount < 2 ? 'N/A' : `${route.largestGap.gapKm.toFixed(1)} km`}
                     </p>
                   </div>
                 </div>
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
                   <span>{route.stationCount} station{route.stationCount === 1 ? '' : 's'}</span>
                   {route.distributors.length > 0 && <span>Distributors: {route.distributors.join(', ')}</span>}
-                  {route.heuristicAssignments > 0 && <span className="text-amber-300">{route.heuristicAssignments} heuristic default{route.heuristicAssignments === 1 ? '' : 's'}</span>}
+                  {route.heuristicAssignments > 0 && <span className="text-amber-700">{route.heuristicAssignments} heuristic default{route.heuristicAssignments === 1 ? '' : 's'}</span>}
                 </div>
                 {route.largestGap.from && route.largestGap.to && (
-                  <p className="mt-2 text-[11px] text-gray-500">
+                  <p className="mt-2 text-[11px] text-slate-500">
                     Largest interval: {route.largestGap.from.stationId} to {route.largestGap.to.stationId}. The extra {AFIR_TEN_T_EXIT_ALLOWANCE_KM} km exit allowance is included in this internal spacing check.
                   </p>
                 )}
@@ -1623,54 +1652,53 @@ export default function App() {
           </div>
         </div>
 
-        <div className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-5">
-          <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Distributor Territory Defaults</h3>
-          <div className="space-y-3 mb-4">
+        <div className={`${surfaceCls} p-5`}>
+          <h3 className={`${sectionTitleCls} mb-4`}>Distributor Territory Defaults</h3>
+          <div className="mb-4 space-y-3">
             {DISTRIBUTOR_RESEARCH_NOTES.map((note) => (
-              <div key={note.distributor} className={`rounded-xl border p-4 ${
-                note.tone === 'official' ? 'border-emerald-800/30 bg-emerald-950/10' : 'border-amber-800/30 bg-amber-950/10'
+              <div key={note.distributor} className={`rounded-2xl border p-4 ${
+                note.tone === 'official' ? 'border-emerald-200 bg-emerald-50/70' : 'border-amber-200 bg-amber-50/70'
               }`}>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-semibold text-white">{note.distributor}</span>
-                  <span className={`text-[10px] font-semibold uppercase tracking-wider ${
-                    note.tone === 'official' ? 'text-emerald-300' : 'text-amber-300'
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="text-sm font-semibold text-slate-900">{note.distributor}</span>
+                  <span className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${
+                    note.tone === 'official' ? 'text-emerald-700' : 'text-amber-700'
                   }`}>
                     {note.tone === 'official' ? 'Public source' : 'Heuristic fallback'}
                   </span>
                 </div>
-                <p className="text-xs leading-relaxed text-gray-400">{note.summary}</p>
+                <p className="text-xs leading-relaxed text-slate-600">{note.summary}</p>
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {DISTRIBUTOR_NETWORK_OPTIONS.map((distributor) => {
               const count = distributorSummary.find((entry) => entry.distributor === distributor)?.count ?? 0;
               return (
-                <div key={distributor} className="rounded-xl border border-gray-800/60 bg-black/10 p-4 text-center">
-                  <p className="text-[10px] uppercase tracking-wider text-gray-500">{distributor}</p>
-                  <p className="mt-1 text-lg font-semibold text-white">{count}</p>
-                  <p className="text-[11px] text-gray-500">stations currently mapped</p>
+                <div key={distributor} className={`${softSurfaceCls} p-4 text-center`}>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">{distributor}</p>
+                  <p className="mt-1 text-lg font-semibold text-slate-900">{count}</p>
+                  <p className="text-[11px] text-slate-500">stations currently mapped</p>
                 </div>
               );
             })}
           </div>
-          <p className="mt-4 text-xs leading-relaxed text-gray-500">
+          <p className="mt-4 text-xs leading-relaxed text-slate-500">
             Distributor defaults are advisory. Border provinces and areas served by other Spanish DSOs should still be reviewed manually before final delivery.
           </p>
         </div>
       </div>
 
-      {/* Quick Map & Report */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2">
-          <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+          <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Network Overview</h3>
-              <p className="mt-1 text-xs text-gray-500">Switch between the bundled submission map and Google Maps without losing station metadata.</p>
+              <h3 className={sectionTitleCls}>Network Overview</h3>
+              <p className="mt-1 text-xs text-slate-500">Switch between the bundled submission map and Google Maps without losing station metadata.</p>
             </div>
             <div className="flex flex-col items-end gap-2">
               <MapModeToggle mapMode={mapMode} onChange={handleMapModeChange} googleMapsConfigured={googleMapsConfigured} />
-              <button onClick={() => setActivePage('map')} className="text-xs text-iberdrola-accent hover:text-iberdrola-accent-light transition flex items-center gap-1">
+              <button onClick={() => setActivePage('map')} className="flex items-center gap-1 text-xs font-semibold text-iberdrola-700 transition hover:text-iberdrola-500">
                 Full Map <ChevronRight size={14} />
               </button>
             </div>
@@ -1680,30 +1708,30 @@ export default function App() {
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">Deployment Roadmap</h3>
+          <h3 className={`${sectionTitleCls} mb-3`}>Deployment Roadmap</h3>
           <div className="space-y-3">
             {roadmap.map((phase, i) => (
-              <div key={i} className={`rounded-2xl border p-4 ${
-                phase.status === 'ready' ? 'bg-emerald-950/20 border-emerald-800/30' :
-                phase.status === 'pending' ? 'bg-amber-950/20 border-amber-800/30' :
-                'bg-red-950/20 border-red-800/30'
+              <div key={i} className={`rounded-[28px] border p-4 shadow-sm ${
+                phase.status === 'ready' ? 'border-emerald-200 bg-emerald-50/80' :
+                phase.status === 'pending' ? 'border-amber-200 bg-amber-50/80' :
+                'border-red-200 bg-red-50/80'
               }`}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-semibold text-white">{phase.phase}</span>
-                  <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                    phase.status === 'ready' ? 'bg-emerald-500/20 text-emerald-400' :
-                    phase.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
-                    'bg-red-500/20 text-red-400'
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-sm font-semibold text-slate-900">{phase.phase}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] ${
+                    phase.status === 'ready' ? 'bg-emerald-100 text-emerald-700' :
+                    phase.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                    'bg-red-100 text-red-700'
                   }`}>{phase.period}</span>
                 </div>
-                <p className="text-xs text-gray-400 mb-2">{phase.description}</p>
+                <p className="mb-2 text-xs text-slate-600">{phase.description}</p>
                 <div className="flex flex-wrap gap-1">
                   {phase.stations.map(s => (
-                    <span key={s.id} className="text-[10px] bg-white/5 rounded-md px-1.5 py-0.5 text-gray-300 font-mono">
+                    <span key={s.id} className="rounded-lg border border-white/70 bg-white/85 px-1.5 py-0.5 text-[10px] font-mono text-slate-700">
                       {s.stationId} · {s.routeSegment}
                     </span>
                   ))}
-                  {phase.stations.length === 0 && <span className="text-[10px] text-gray-600 italic">No stations</span>}
+                  {phase.stations.length === 0 && <span className="text-[10px] italic text-slate-400">No stations</span>}
                 </div>
               </div>
             ))}
@@ -1711,51 +1739,50 @@ export default function App() {
         </div>
       </div>
 
-      {/* Compliance & Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-5">
-          <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Compliance Overview</h3>
-          <div className="flex items-center gap-4 mb-3">
-            <div className="relative w-20 h-20">
-              <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className={`${surfaceCls} p-5`}>
+          <h3 className={`${sectionTitleCls} mb-4`}>Compliance Overview</h3>
+          <div className="mb-3 flex items-center gap-4">
+            <div className="relative h-20 w-20">
+              <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
                 <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
+                  fill="none" stroke="rgba(148,163,184,0.18)" strokeWidth="3" />
                 <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none" stroke={kpis.complianceRate === 100 ? '#10b981' : '#eab308'}
                   strokeWidth="3" strokeDasharray={`${kpis.complianceRate}, 100`}
                   strokeLinecap="round" />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-lg font-bold text-white">{kpis.complianceRate}%</span>
+                <span className="text-lg font-bold text-slate-900">{kpis.complianceRate}%</span>
               </div>
             </div>
             <div>
-              <p className="text-sm text-white font-medium">{POWER_STANDARD_KW} kW Standard</p>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-sm font-medium text-slate-900">{POWER_STANDARD_KW} kW Standard</p>
+              <p className="mt-0.5 text-xs text-slate-500">
                 {kpis.complianceRate === 100
                   ? 'All stations meet the mandatory power requirement'
                   : `${stations.filter(s => s.powerKW < POWER_STANDARD_KW).length} station(s) below standard`}
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-gray-800/50">
+          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-slate-200 pt-4">
             <div className="text-center">
-              <p className="text-lg font-bold text-emerald-400">{stations.filter(s => s.gridStatus === 'Sufficient').length}</p>
-              <p className="text-[10px] text-gray-500 uppercase">Sufficient</p>
+              <p className="text-lg font-bold text-emerald-500">{stations.filter(s => s.gridStatus === 'Sufficient').length}</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Sufficient</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-yellow-400">{stations.filter(s => s.gridStatus === 'Moderate').length}</p>
-              <p className="text-[10px] text-gray-500 uppercase">Moderate</p>
+              <p className="text-lg font-bold text-yellow-500">{stations.filter(s => s.gridStatus === 'Moderate').length}</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Moderate</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-red-400">{stations.filter(s => s.gridStatus === 'Congested').length}</p>
-              <p className="text-[10px] text-gray-500 uppercase">Congested</p>
+              <p className="text-lg font-bold text-red-500">{stations.filter(s => s.gridStatus === 'Congested').length}</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Congested</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-5">
-          <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Infrastructure Summary</h3>
+        <div className={`${surfaceCls} p-5`}>
+          <h3 className={`${sectionTitleCls} mb-4`}>Infrastructure Summary</h3>
           <div className="space-y-3">
             {[
               { label: 'Total Energy Capacity', value: `${(kpis.totalCapacity / 1000).toFixed(1)} MW`, icon: Zap },
@@ -1763,12 +1790,12 @@ export default function App() {
               { label: 'Network Coverage', value: `${new Set(stations.map(s => s.routeSegment)).size} routes`, icon: Globe },
               { label: 'Avg Station Size', value: `${kpis.avgChargersPerStation} chargers`, icon: Layers },
             ].map((item, i) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b border-gray-800/30 last:border-0">
+              <div key={i} className="flex items-center justify-between border-b border-slate-200 py-2 last:border-0">
                 <div className="flex items-center gap-2.5">
-                  <item.icon size={14} className="text-gray-500" />
-                  <span className="text-sm text-gray-300">{item.label}</span>
+                  <item.icon size={14} className="text-slate-400" />
+                  <span className="text-sm text-slate-600">{item.label}</span>
                 </div>
-                <span className="text-sm font-semibold text-white tabular-nums">{item.value}</span>
+                <span className="text-sm font-semibold text-slate-900 tabular-nums">{item.value}</span>
               </div>
             ))}
           </div>
@@ -1780,15 +1807,16 @@ export default function App() {
   // MAP PAGE
   const MapPage = () => (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 rounded-[32px] border border-slate-200 bg-white/82 p-6 shadow-[0_20px_60px_rgba(148,163,184,0.14)] lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">Network Map</h2>
-          <p className="text-sm text-gray-400 mt-0.5">Interactive geospatial view of all charging stations across Spain</p>
+          <p className={sectionTitleCls}>Interactive Geospatial Layer</p>
+          <h2 className="text-2xl font-semibold text-slate-950">Network map</h2>
+          <p className="mt-0.5 text-sm text-slate-500">Interactive geospatial view of all charging stations across Spain.</p>
         </div>
         <div className="flex flex-col items-end gap-2">
           <MapModeToggle mapMode={mapMode} onChange={handleMapModeChange} googleMapsConfigured={googleMapsConfigured} />
           <button onClick={() => { setForm({ ...emptyForm }); setShowAddModal(true); }}
-            className="px-4 py-2.5 rounded-xl text-sm font-semibold bg-iberdrola-700 hover:bg-iberdrola-600 text-white transition flex items-center gap-2">
+            className={primaryButtonCls}>
             <Plus size={16} /> Add Station
           </button>
         </div>
@@ -1799,15 +1827,15 @@ export default function App() {
       {renderNetworkMap(520)}
 
       {/* Station Table */}
-      <div className="bg-gray-900/50 border border-gray-800/50 rounded-2xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-800/50 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Proposed Stations</h3>
-          <span className="text-xs text-gray-500">{stations.length} station{stations.length !== 1 ? 's' : ''}</span>
+      <div className={`${surfaceCls} overflow-hidden`}>
+        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+          <h3 className={sectionTitleCls}>Proposed Stations</h3>
+          <span className="text-xs text-slate-500">{stations.length} station{stations.length !== 1 ? 's' : ''}</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-800/50">
+              <tr className="border-b border-slate-200 text-xs uppercase tracking-[0.2em] text-slate-500">
                 <th className="text-left px-5 py-3 font-medium">Station ID</th>
                 <th className="text-left px-5 py-3 font-medium">Coordinates</th>
                 <th className="text-left px-5 py-3 font-medium">Route</th>
@@ -1823,24 +1851,24 @@ export default function App() {
               {stations.map(s => {
                 const resolvedDistributor = getResolvedDistributor(s);
                 return (
-                <tr key={s.id} className="border-b border-gray-800/30 hover:bg-white/[0.02] transition"
+                <tr key={s.id} className="border-b border-slate-200/80 transition hover:bg-slate-50/80"
                   onMouseEnter={() => setHoveredStation(s.id)} onMouseLeave={() => setHoveredStation(null)}>
                   <td className="px-5 py-3.5">
-                    <span className="font-mono font-semibold text-white">{s.stationId}</span>
+                    <span className="font-mono font-semibold text-slate-900">{s.stationId}</span>
                   </td>
-                  <td className="px-5 py-3.5 text-gray-400 font-mono text-xs">
+                  <td className="px-5 py-3.5 font-mono text-xs text-slate-500">
                     {s.lat.toFixed(4)}, {s.lng.toFixed(4)}
                   </td>
-                  <td className="px-5 py-3.5 text-gray-300 text-xs">{getRouteLabel(s.routeSegment)}</td>
-                  <td className="px-5 py-3.5 text-center text-white font-medium">{s.numChargers}</td>
+                  <td className="px-5 py-3.5 text-xs text-slate-600">{getRouteLabel(s.routeSegment)}</td>
+                  <td className="px-5 py-3.5 text-center font-medium text-slate-900">{s.numChargers}</td>
                   <td className="px-5 py-3.5 text-center">
-                    <span className="text-xs font-medium text-emerald-400">{s.powerKW} kW</span>
+                    <span className="text-xs font-medium text-emerald-700">{s.powerKW} kW</span>
                   </td>
                   <td className="px-5 py-3.5 text-center">
                     <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
-                      s.gridStatus === 'Sufficient' ? 'bg-emerald-500/15 text-emerald-400' :
-                      s.gridStatus === 'Moderate' ? 'bg-yellow-500/15 text-yellow-400' :
-                      'bg-red-500/15 text-red-400'
+                      s.gridStatus === 'Sufficient' ? 'bg-emerald-100 text-emerald-700' :
+                      s.gridStatus === 'Moderate' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
                     }`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${
                         s.gridStatus === 'Sufficient' ? 'bg-emerald-400' :
@@ -1851,9 +1879,9 @@ export default function App() {
                   </td>
                   <td className="px-5 py-3.5 text-center">
                     <div className="flex flex-col items-center gap-1">
-                      <span className="text-xs font-medium text-white">{resolvedDistributor.distributor || 'Optional'}</span>
-                      {resolvedDistributor.source === 'Heuristic' && <span className="text-[10px] text-amber-300">Heuristic</span>}
-                      {resolvedDistributor.source === 'Imported' && <span className="text-[10px] text-blue-300">Imported</span>}
+                      <span className="text-xs font-medium text-slate-900">{resolvedDistributor.distributor || 'Optional'}</span>
+                      {resolvedDistributor.source === 'Heuristic' && <span className="text-[10px] text-amber-700">Heuristic</span>}
+                      {resolvedDistributor.source === 'Imported' && <span className="text-[10px] text-sky-700">Imported</span>}
                     </div>
                   </td>
                   <td className="px-5 py-3.5 text-center">
@@ -1861,7 +1889,7 @@ export default function App() {
                       href={getGoogleMapsLocationUrl(s.lat, s.lng)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-lg border border-gray-700 px-2.5 py-1 text-[11px] font-semibold text-blue-300 hover:bg-gray-800 hover:text-blue-200"
+                      className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-sky-700 shadow-sm hover:border-slate-300 hover:bg-slate-50"
                     >
                       <Navigation size={12} /> Open
                     </a>
@@ -1869,11 +1897,11 @@ export default function App() {
                   <td className="px-5 py-3.5 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => startEdit(s)}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition">
+                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-900">
                         <Edit3 size={14} />
                       </button>
                       <button onClick={() => setShowDeleteConfirm(s.id)}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition">
+                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -1883,7 +1911,7 @@ export default function App() {
               })}
               {stations.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-5 py-12 text-center text-gray-600">
+                  <td colSpan={9} className="px-5 py-12 text-center text-slate-400">
                     <MapPin size={32} className="mx-auto mb-2 opacity-30" />
                     <p className="text-sm">No stations loaded yet. Import File 2.csv or click "Add Station" to begin.</p>
                   </td>
@@ -1899,9 +1927,10 @@ export default function App() {
   // FRICTION ANALYSIS PAGE
   const FrictionPage = () => (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-white">Friction Point Analysis</h2>
-        <p className="text-sm text-gray-400 mt-0.5">Automated detection of grid capacity constraints across proposed network</p>
+      <div className="rounded-[32px] border border-slate-200 bg-white/82 p-6 shadow-[0_20px_60px_rgba(148,163,184,0.14)]">
+        <p className={sectionTitleCls}>Constraint Surveillance</p>
+        <h2 className="text-2xl font-semibold text-slate-950">Friction point analysis</h2>
+        <p className="mt-0.5 text-sm text-slate-500">Automated detection of grid capacity constraints across the proposed network.</p>
       </div>
 
       {/* Summary Cards */}
@@ -1916,56 +1945,56 @@ export default function App() {
 
       {/* Friction Details */}
       {stations.length === 0 ? (
-        <div className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-8 text-center">
-          <AlertTriangle size={40} className="mx-auto mb-3 text-gray-600" />
-          <h3 className="text-lg font-semibold text-white">No Stations Loaded</h3>
-          <p className="text-sm text-gray-400 mt-1">Import File 2.csv and File 3.csv to analyze real friction points.</p>
+        <div className={`${surfaceCls} p-8 text-center`}>
+          <AlertTriangle size={40} className="mx-auto mb-3 text-slate-400" />
+          <h3 className="text-lg font-semibold text-slate-950">No Stations Loaded</h3>
+          <p className="mt-1 text-sm text-slate-500">Import File 2.csv and File 3.csv to analyze real friction points.</p>
         </div>
       ) : kpis.frictionPoints.length === 0 ? (
-        <div className="bg-emerald-950/20 border border-emerald-800/30 rounded-2xl p-8 text-center">
-          <CheckCircle2 size={40} className="mx-auto mb-3 text-emerald-500/50" />
-          <h3 className="text-lg font-semibold text-emerald-300">No Friction Points Detected</h3>
-          <p className="text-sm text-gray-400 mt-1">All stations have sufficient grid capacity for deployment.</p>
+        <div className="rounded-[30px] border border-emerald-200 bg-emerald-50/85 p-8 text-center shadow-sm">
+          <CheckCircle2 size={40} className="mx-auto mb-3 text-emerald-500/60" />
+          <h3 className="text-lg font-semibold text-emerald-800">No Friction Points Detected</h3>
+          <p className="mt-1 text-sm text-slate-600">All stations have sufficient grid capacity for deployment.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {kpis.frictionPoints.map(s => (
             <div key={s.id}
-              className={`rounded-2xl border p-5 ${
-                s.gridStatus === 'Congested' ? 'bg-red-950/15 border-red-800/30' : 'bg-yellow-950/15 border-yellow-800/30'
+              className={`rounded-[28px] border p-5 shadow-sm ${
+                s.gridStatus === 'Congested' ? 'border-red-200 bg-red-50/80' : 'border-yellow-200 bg-yellow-50/80'
               }`}>
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4">
-                  <div className={`p-2.5 rounded-xl ${s.gridStatus === 'Congested' ? 'bg-red-500/15' : 'bg-yellow-500/15'}`}>
-                    <AlertTriangle size={20} className={s.gridStatus === 'Congested' ? 'text-red-400' : 'text-yellow-400'} />
+                  <div className={`rounded-2xl p-2.5 ${s.gridStatus === 'Congested' ? 'bg-red-100' : 'bg-yellow-100'}`}>
+                    <AlertTriangle size={20} className={s.gridStatus === 'Congested' ? 'text-red-500' : 'text-yellow-600'} />
                   </div>
                   <div>
                     <div className="flex items-center gap-3 mb-1">
-                      <span className="font-mono font-semibold text-white">{s.stationId}</span>
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                        s.gridStatus === 'Congested' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
+                      <span className="font-mono font-semibold text-slate-900">{s.stationId}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] ${
+                        s.gridStatus === 'Congested' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
                       }`}>{s.gridStatus === 'Congested' ? 'CRITICAL' : 'WARNING'}</span>
                     </div>
-                    <p className="text-sm text-gray-400">{getRouteLabel(s.routeSegment)}</p>
-                    <p className="text-xs text-gray-500 mt-1 font-mono">{formatCoordinate(s.lat, 'lat')}, {formatCoordinate(s.lng, 'lng')}</p>
+                    <p className="text-sm text-slate-600">{getRouteLabel(s.routeSegment)}</p>
+                    <p className="mt-1 font-mono text-xs text-slate-500">{formatCoordinate(s.lat, 'lat')}, {formatCoordinate(s.lng, 'lng')}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-gray-500">Required Capacity</p>
-                  <p className="text-lg font-bold text-white">{(s.numChargers * POWER_STANDARD_KW).toLocaleString()} kW</p>
-                  <p className="text-xs text-gray-500">{s.numChargers} chargers × {POWER_STANDARD_KW} kW</p>
+                  <p className="text-xs text-slate-500">Required Capacity</p>
+                  <p className="text-lg font-bold text-slate-900">{(s.numChargers * POWER_STANDARD_KW).toLocaleString()} kW</p>
+                  <p className="text-xs text-slate-500">{s.numChargers} chargers × {POWER_STANDARD_KW} kW</p>
                 </div>
               </div>
-              <div className="mt-4 pt-3 border-t border-white/5">
-                <p className="text-xs text-gray-400">
-                  <span className="font-semibold text-gray-300">Recommended Action: </span>
+              <div className="mt-4 border-t border-white/70 pt-3">
+                <p className="text-xs text-slate-600">
+                  <span className="font-semibold text-slate-800">Recommended Action: </span>
                   {s.gridStatus === 'Congested'
                     ? 'Submit grid upgrade request to REE. Estimated lead time: 6–12 months. Consider interim mobile charging units or load-managed deployment.'
                     : 'Conduct detailed grid capacity study. Coordinate with local distribution company for reinforcement timeline. May proceed with reduced initial charger count.'}
                 </p>
-                <p className="text-xs text-gray-500 mt-2">
-                  Distributor: <span className="text-gray-300">{getResolvedDistributor(s).distributor || 'Not provided'}</span>
-                  {getResolvedDistributor(s).source === 'Heuristic' && <span className="text-amber-300"> · heuristic default</span>}
+                <p className="mt-2 text-xs text-slate-500">
+                  Distributor: <span className="text-slate-800">{getResolvedDistributor(s).distributor || 'Not provided'}</span>
+                  {getResolvedDistributor(s).source === 'Heuristic' && <span className="text-amber-700"> · heuristic default</span>}
                 </p>
               </div>
             </div>
@@ -1974,33 +2003,33 @@ export default function App() {
       )}
 
       {/* Report Preview */}
-      <div className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-6">
-        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">3-Step Deployment Roadmap</h3>
+      <div className={`${surfaceCls} p-6`}>
+        <h3 className={`${sectionTitleCls} mb-4`}>3-Step Deployment Roadmap</h3>
         <div className="relative">
-          <div className="absolute left-[19px] top-6 bottom-6 w-px bg-gradient-to-b from-emerald-500 via-amber-500 to-red-500 opacity-30" />
+          <div className="absolute left-[19px] top-6 bottom-6 w-px bg-gradient-to-b from-emerald-400 via-amber-400 to-red-400 opacity-35" />
           <div className="space-y-6">
             {roadmap.map((phase, i) => (
               <div key={i} className="flex gap-4">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                  phase.status === 'ready' ? 'bg-emerald-500/20 text-emerald-400' :
-                  phase.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
-                  'bg-red-500/20 text-red-400'
+                  phase.status === 'ready' ? 'bg-emerald-100 text-emerald-700' :
+                  phase.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                  'bg-red-100 text-red-700'
                 }`}>
                   {i === 0 ? <Zap size={16} /> : i === 1 ? <RefreshCw size={16} /> : <Target size={16} />}
                 </div>
                 <div className="flex-1 pb-2">
                   <div className="flex items-center gap-3 mb-1">
-                    <h4 className="text-sm font-semibold text-white">{phase.phase}</h4>
-                    <span className="text-[10px] font-medium text-gray-500">{phase.period}</span>
+                    <h4 className="text-sm font-semibold text-slate-900">{phase.phase}</h4>
+                    <span className="text-[10px] font-medium text-slate-500">{phase.period}</span>
                   </div>
-                  <p className="text-xs text-gray-400 mb-2">{phase.description}</p>
+                  <p className="mb-2 text-xs text-slate-600">{phase.description}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {phase.stations.map(s => (
-                      <span key={s.id} className="text-[10px] bg-white/5 border border-white/5 rounded-lg px-2 py-0.5 text-gray-300 font-mono">
+                      <span key={s.id} className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-mono text-slate-700">
                           {s.stationId} · {s.routeSegment} · {s.numChargers} chargers
                       </span>
                     ))}
-                    {phase.stations.length === 0 && <span className="text-[10px] text-gray-600 italic">No stations in this phase</span>}
+                    {phase.stations.length === 0 && <span className="text-[10px] italic text-slate-400">No stations in this phase</span>}
                   </div>
                 </div>
               </div>
@@ -2014,25 +2043,26 @@ export default function App() {
   // EXPORT CENTER PAGE
   const ExportPage = () => (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-white">Import & Export Center</h2>
-        <p className="text-sm text-gray-400 mt-0.5">Load your real datathon outputs, inspect them in the UI, and regenerate submission-ready CSV files</p>
+      <div className="rounded-[32px] border border-slate-200 bg-[linear-gradient(135deg,rgba(15,23,42,0.94),rgba(30,41,59,0.9),rgba(71,85,105,0.88))] p-6 shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-300">Boardroom Delivery</p>
+        <h2 className="text-2xl font-semibold text-white">Reports and submission center</h2>
+        <p className="mt-0.5 max-w-3xl text-sm text-slate-300">Load your real datathon outputs, inspect them in the UI, and regenerate submission-ready CSV files.</p>
       </div>
 
-      <div className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-5">
+      <div className={`${surfaceCls} p-5`}>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex items-start gap-4">
-            <div className="rounded-xl bg-blue-500/10 p-3">
-              <Upload size={22} className="text-blue-400" />
+            <div className="rounded-2xl bg-sky-100 p-3">
+              <Upload size={22} className="text-sky-700" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-2">Import Real Submission Files</h3>
-              <p className="text-sm text-gray-400 max-w-2xl">
+              <h3 className={`${sectionTitleCls} mb-2`}>Import Real Submission Files</h3>
+              <p className="max-w-2xl text-sm text-slate-600">
                 Upload File 2.csv to replace the seeded network. File 1.csv hydrates projected EVs and baseline counts, while File 3.csv enriches Moderate and Congested stations with distributor data.
               </p>
             </div>
           </div>
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-iberdrola-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-iberdrola-600">
+          <label className={primaryButtonCls}>
             <Upload size={16} /> Select CSV Files
             <input type="file" accept=".csv,text/csv" multiple className="hidden" onChange={handleImportSelection} />
           </label>
@@ -2044,25 +2074,25 @@ export default function App() {
             { key: 'file2Name', label: 'File 2.csv', helper: 'Proposed station list' },
             { key: 'file3Name', label: 'File 3.csv', helper: 'Friction and distributor data' },
           ].map((file) => (
-            <div key={file.key} className="rounded-xl border border-gray-800/60 bg-black/10 p-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{file.label}</p>
-              <p className="mt-1 text-sm font-medium text-white">{importStatus[file.key] || 'Not loaded'}</p>
-              <p className="mt-1 text-xs text-gray-500">{file.helper}</p>
+            <div key={file.key} className={`${softSurfaceCls} p-4`}>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{file.label}</p>
+              <p className="mt-1 text-sm font-medium text-slate-900">{importStatus[file.key] || 'Not loaded'}</p>
+              <p className="mt-1 text-xs text-slate-500">{file.helper}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 flex flex-col gap-2 text-xs text-gray-500 md:flex-row md:items-center md:justify-between">
-          <p>Last import: <span className="text-gray-300">{formatImportTimestamp(importStatus.importedAt)}</span></p>
+        <div className="mt-4 flex flex-col gap-2 text-xs text-slate-500 md:flex-row md:items-center md:justify-between">
+          <p>Last import: <span className="text-slate-800">{formatImportTimestamp(importStatus.importedAt)}</span></p>
           <p>
-            Loaded <span className="text-gray-300">{importStatus.stationCount}</span> stations and <span className="text-gray-300">{importStatus.frictionCount}</span> friction points.
+            Loaded <span className="text-slate-800">{importStatus.stationCount}</span> stations and <span className="text-slate-800">{importStatus.frictionCount}</span> friction points.
           </p>
         </div>
       </div>
 
-      <div className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-5">
-        <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-3">PDF Rule Checklist</h3>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 text-xs text-gray-400">
+      <div className={`${surfaceCls} p-5`}>
+        <h3 className={`${sectionTitleCls} mb-3`}>PDF Rule Checklist</h3>
+        <div className="grid grid-cols-1 gap-3 text-xs text-slate-600 lg:grid-cols-2">
           <p>Output files must be named exactly File 1.csv, File 2.csv, and File 3.csv.</p>
           <p>Route segments are exported as official road codes only, matching the PDF schema for File 2 and File 3.</p>
           <p>File 3 includes only Moderate and Congested stations, with distributor network restricted to i-DE, Endesa, or Viesgo.</p>
@@ -2076,38 +2106,38 @@ export default function App() {
 
       <div className={`rounded-2xl border p-5 ${
         afirBlockingRoutes.length > 0
-          ? 'bg-red-950/20 border-red-800/30'
+          ? 'bg-red-50/85 border-red-200'
           : planningAdvisories.length === 0
-            ? 'bg-blue-950/20 border-blue-800/30'
-            : 'bg-amber-950/20 border-amber-800/30'
+            ? 'bg-sky-50/85 border-sky-200'
+            : 'bg-amber-50/85 border-amber-200'
       }`}>
         <div className="flex items-start gap-3">
           <Info size={22} className={`${
             afirBlockingRoutes.length > 0
-              ? 'text-red-300'
+              ? 'text-red-600'
               : planningAdvisories.length === 0
-                ? 'text-blue-300'
-                : 'text-amber-300'
+                ? 'text-sky-600'
+                : 'text-amber-600'
           } mt-0.5`} />
           <div>
             <h3 className={`text-sm font-semibold ${
               afirBlockingRoutes.length > 0
-                ? 'text-red-200'
+                ? 'text-red-700'
                 : planningAdvisories.length === 0
-                  ? 'text-blue-200'
-                  : 'text-amber-200'
+                  ? 'text-sky-700'
+                  : 'text-amber-700'
             }`}>
               Team Planning Advisory
             </h3>
             {planningAdvisories.length === 0 ? (
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-slate-600">
                 No active research-driven advisories. Route spacing and distributor defaults are currently inside the app's planning tolerance.
               </p>
             ) : (
               <ul className="mt-2 space-y-1.5">
                 {planningAdvisories.map((advisory, index) => (
-                  <li key={index} className="text-xs text-amber-100/90 flex items-start gap-2">
-                    <span className="w-1 h-1 rounded-full bg-amber-300 mt-1.5 shrink-0" />
+                  <li key={index} className="flex items-start gap-2 text-xs text-slate-700">
+                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-500" />
                     {advisory}
                   </li>
                 ))}
@@ -2119,26 +2149,26 @@ export default function App() {
 
       {/* Validation Status */}
       <div className={`rounded-2xl border p-5 ${
-        validationErrors.length === 0 ? 'bg-emerald-950/20 border-emerald-800/30' : 'bg-red-950/20 border-red-800/30'
+        validationErrors.length === 0 ? 'bg-emerald-50/85 border-emerald-200' : 'bg-red-50/85 border-red-200'
       }`}>
         <div className="flex items-start gap-3">
           {validationErrors.length === 0 ? (
             <>
-              <CheckCircle2 size={22} className="text-emerald-400 mt-0.5" />
+              <CheckCircle2 size={22} className="mt-0.5 text-emerald-600" />
               <div>
-                <h3 className="text-sm font-semibold text-emerald-300">All Validations Passed</h3>
-                <p className="text-xs text-gray-400 mt-0.5">Your submission meets PDF-required checks (schema, naming, statuses, and {POWER_STANDARD_KW} kW standard) plus the optional team spacing gate.</p>
+                <h3 className="text-sm font-semibold text-emerald-700">All Validations Passed</h3>
+                <p className="mt-0.5 text-xs text-slate-600">Your submission meets PDF-required checks (schema, naming, statuses, and {POWER_STANDARD_KW} kW standard) plus the optional team spacing gate.</p>
               </div>
             </>
           ) : (
             <>
-              <XCircle size={22} className="text-red-400 mt-0.5" />
+              <XCircle size={22} className="mt-0.5 text-red-600" />
               <div>
-                <h3 className="text-sm font-semibold text-red-300">Validation Errors ({validationErrors.length})</h3>
+                <h3 className="text-sm font-semibold text-red-700">Validation Errors ({validationErrors.length})</h3>
                 <ul className="mt-2 space-y-1">
                   {validationErrors.map((e, i) => (
-                    <li key={i} className="text-xs text-red-300/80 flex items-center gap-1.5">
-                      <span className="w-1 h-1 rounded-full bg-red-400 shrink-0" /> {e}
+                    <li key={i} className="flex items-center gap-1.5 text-xs text-red-700">
+                      <span className="h-1 w-1 shrink-0 rounded-full bg-red-500" /> {e}
                     </li>
                   ))}
                 </ul>
@@ -2164,21 +2194,21 @@ export default function App() {
             icon: AlertTriangle, colorClasses: 'bg-yellow-500/10 text-yellow-400', onClick: exportFile3, rows: kpis.frictionPoints.length,
           },
         ].map((item, i) => (
-          <div key={i} className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-5 flex flex-col">
+          <div key={i} className={`${surfaceCls} flex flex-col p-5`}>
             <div className="flex items-center gap-3 mb-3">
               <div className={`p-2.5 rounded-xl ${item.colorClasses}`}>
                 <item.icon size={20} />
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{item.file}</p>
-                <p className="text-sm font-semibold text-white">{item.label}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{item.file}</p>
+                <p className="text-sm font-semibold text-slate-900">{item.label}</p>
               </div>
             </div>
-            <p className="text-xs text-gray-400 mb-4 flex-1">{item.desc}</p>
+            <p className="mb-4 flex-1 text-xs text-slate-600">{item.desc}</p>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500">{item.rows} row{item.rows !== 1 ? 's' : ''}</span>
+              <span className="text-xs text-slate-500">{item.rows} row{item.rows !== 1 ? 's' : ''}</span>
               <button onClick={item.onClick}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-white transition flex items-center gap-1.5">
+                className={ghostButtonCls}>
                 <Download size={13} /> Export CSV
               </button>
             </div>
@@ -2187,18 +2217,19 @@ export default function App() {
       </div>
 
       {/* One-Click Submission */}
-      <div className="bg-gradient-to-r from-iberdrola-900/40 to-gray-900/60 border border-iberdrola-700/30 rounded-2xl p-6">
+      <div className="rounded-[32px] border border-slate-200 bg-[linear-gradient(135deg,rgba(163,209,51,0.18),rgba(255,255,255,0.96),rgba(14,165,233,0.08))] p-6 shadow-[0_24px_60px_rgba(148,163,184,0.14)]">
         <div className="flex items-start gap-4">
-          <div className="p-3 rounded-xl bg-iberdrola-accent/20">
+          <div className="rounded-2xl bg-slate-900 p-3 text-white">
             <FileText size={24} className="text-iberdrola-accent" />
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-white mb-1">Prepare Submission</h3>
-            <p className="text-sm text-gray-400 mb-4">
+            <p className={sectionTitleCls}>Final Packaging</p>
+            <h3 className="mb-1 text-lg font-semibold text-slate-950">Prepare submission</h3>
+            <p className="mb-4 text-sm text-slate-600">
               Validates all PDF-required checks, applies the optional {AFIR_LIGHT_DUTY_MAX_GAP_KM} km team spacing gate, and exports all three files simultaneously.
             </p>
             <button onClick={handlePrepareSubmission}
-              className="px-6 py-3 rounded-xl text-sm font-bold bg-iberdrola-accent text-iberdrola-900 hover:bg-iberdrola-accent-light transition flex items-center gap-2 shadow-lg shadow-iberdrola-accent/20">
+              className={accentButtonCls}>
               <Shield size={18} /> Validate & Export All Files
             </button>
           </div>
@@ -2210,9 +2241,10 @@ export default function App() {
   // ─── RENDER ──────────────────────────────────────────────────────────
   const pages = { dashboard: DashboardPage, map: MapPage, friction: FrictionPage, export: ExportPage };
   const ActivePage = pages[activePage];
+  const activeMeta = pageMeta[activePage];
 
   return (
-    <div className="min-h-screen bg-gray-950 font-sans flex">
+    <div className="min-h-screen font-sans text-slate-900">
       {/* CSS Animations */}
       <style>{`
         @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -2221,36 +2253,44 @@ export default function App() {
         .animate-modal-in { animation: modalIn 0.2s ease-out; }
       `}</style>
 
+      <div className="pointer-events-none fixed left-[-10%] top-[-8%] h-72 w-72 rounded-full bg-emerald-200/60 blur-3xl" />
+      <div className="pointer-events-none fixed bottom-[-10%] right-[-6%] h-80 w-80 rounded-full bg-sky-200/50 blur-3xl" />
+
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
+      <div className="relative flex min-h-screen">
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gray-900/80 border-r border-gray-800/50 flex flex-col transition-all duration-300 shrink-0`}>
+      <aside className={`${sidebarOpen ? 'w-72' : 'w-24'} flex shrink-0 flex-col border-r border-white/60 bg-white/70 backdrop-blur-xl transition-all duration-300`}>
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-gray-800/50 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-iberdrola-700 flex items-center justify-center shrink-0">
+        <div className="flex items-center gap-3 border-b border-slate-200/80 px-5 py-5">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 shrink-0 shadow-sm">
             <Zap size={18} className="text-iberdrola-accent" />
           </div>
           {sidebarOpen && (
             <div className="overflow-hidden">
-              <p className="text-sm font-bold text-white leading-tight truncate">Iberdrola</p>
-              <p className="text-[10px] text-gray-500 leading-tight truncate">EV Command Center</p>
+              <p className="truncate text-sm font-bold leading-tight text-slate-950">Iberdrola</p>
+              <p className="truncate text-[10px] leading-tight text-slate-500">EV Command Center</p>
             </div>
           )}
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        <nav className="flex-1 space-y-1 px-3 py-4">
           {navItems.map(item => (
             <button key={item.id} onClick={() => setActivePage(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium transition-all ${
                 activePage === item.id
-                  ? 'bg-iberdrola-700/30 text-iberdrola-accent border border-iberdrola-700/30'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  ? 'border border-emerald-200 bg-[linear-gradient(135deg,rgba(163,209,51,0.18),rgba(255,255,255,0.96))] text-slate-900 shadow-sm'
+                  : 'border border-transparent text-slate-500 hover:border-slate-200 hover:bg-white/80 hover:text-slate-900'
               }`}>
-              <item.icon size={18} className="shrink-0" />
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                activePage === item.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-500'
+              }`}>
+                <item.icon size={18} className="shrink-0" />
+              </span>
               {sidebarOpen && <span className="truncate">{item.label}</span>}
               {sidebarOpen && item.id === 'friction' && kpis.frictionPoints.length > 0 && (
-                <span className="ml-auto text-[10px] font-bold bg-red-500/20 text-red-400 rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+                <span className="ml-auto min-w-[20px] rounded-full bg-red-100 px-1.5 py-0.5 text-center text-[10px] font-bold text-red-700">
                   {kpis.frictionPoints.length}
                 </span>
               )}
@@ -2259,9 +2299,9 @@ export default function App() {
         </nav>
 
         {/* Sidebar toggle */}
-        <div className="px-3 py-4 border-t border-gray-800/50">
+        <div className="border-t border-slate-200/80 px-3 py-4">
           <button onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-500 hover:text-gray-300 hover:bg-white/5 transition">
+            className="flex w-full items-center justify-center gap-2 rounded-2xl px-3 py-2 text-xs text-slate-500 transition hover:bg-white/80 hover:text-slate-900">
             <Menu size={16} />
             {sidebarOpen && <span>Collapse</span>}
           </button>
@@ -2271,29 +2311,45 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         {/* Top Bar */}
-        <header className="sticky top-0 z-40 bg-gray-950/80 backdrop-blur-xl border-b border-gray-800/50 px-6 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="text-base font-semibold text-white">
-              {navItems.find(n => n.id === activePage)?.label}
-            </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-xs text-gray-500 bg-gray-900/50 rounded-lg px-3 py-1.5 border border-gray-800/50">
-              <Activity size={12} className="text-emerald-500" />
-              <span>System Active</span>
+        <header className="sticky top-0 z-40 border-b border-white/60 bg-slate-50/70 px-6 py-4 backdrop-blur-xl">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">{activeMeta.eyebrow}</p>
+              <h1 className="text-2xl font-semibold text-slate-950">{activeMeta.title}</h1>
+              <p className="mt-1 text-sm text-slate-500">{activeMeta.summary}</p>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-gray-500 bg-gray-900/50 rounded-lg px-3 py-1.5 border border-gray-800/50">
-              <Battery size={12} className="text-iberdrola-accent" />
-              <span>{POWER_STANDARD_KW} kW Standard</span>
+            <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+              <div className="inline-flex flex-wrap gap-1 rounded-[22px] border border-slate-200 bg-white/90 p-1 shadow-sm">
+                {navItems.map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActivePage(item.id)}
+                    className={`rounded-2xl px-4 py-2 text-xs font-semibold transition ${
+                      activePage === item.id ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-1.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+                <Activity size={12} className="text-emerald-600" />
+                <span>System Active</span>
+              </div>
+              <div className="flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white/90 px-3 py-2 text-xs text-slate-600">
+                <Battery size={12} className="text-iberdrola-700" />
+                <span>{POWER_STANDARD_KW} kW Standard</span>
+              </div>
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="p-6 max-w-7xl mx-auto">
+        <div className="mx-auto max-w-[1500px] p-6">
           <ActivePage />
         </div>
       </main>
+      </div>
 
       {/* MODALS */}
       <Modal open={showAddModal} onClose={() => { setShowAddModal(false); setForm({ ...emptyForm }); }} title="Add New Station" size="lg">
@@ -2306,20 +2362,20 @@ export default function App() {
 
       <Modal open={!!showDeleteConfirm} onClose={() => setShowDeleteConfirm(null)} title="Confirm Deletion" size="sm">
         <div className="text-center">
-          <div className="w-12 h-12 rounded-full bg-red-500/15 flex items-center justify-center mx-auto mb-4">
-            <Trash2 size={22} className="text-red-400" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+            <Trash2 size={22} className="text-red-600" />
           </div>
-          <p className="text-sm text-gray-300 mb-1">
-            Delete station <span className="font-mono font-semibold text-white">{stations.find(s => s.id === showDeleteConfirm)?.stationId}</span>?
+          <p className="mb-1 text-sm text-slate-600">
+            Delete station <span className="font-mono font-semibold text-slate-900">{stations.find(s => s.id === showDeleteConfirm)?.stationId}</span>?
           </p>
-          <p className="text-xs text-gray-500 mb-5">This action cannot be undone.</p>
+          <p className="mb-5 text-xs text-slate-500">This action cannot be undone.</p>
           <div className="flex justify-center gap-3">
             <button onClick={() => setShowDeleteConfirm(null)}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium text-gray-300 bg-gray-800 hover:bg-gray-700 transition">
+              className={ghostButtonCls}>
               Cancel
             </button>
             <button onClick={() => handleDeleteStation(showDeleteConfirm)}
-              className="px-4 py-2.5 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-500 text-white transition flex items-center gap-1.5">
+              className="inline-flex items-center gap-1.5 rounded-2xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-500">
               <Trash2 size={14} /> Delete
             </button>
           </div>
@@ -2329,24 +2385,24 @@ export default function App() {
       <Modal open={showSubmitModal} onClose={() => setShowSubmitModal(false)} title="Submission Validation Failed" size="md">
         <div>
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center">
-              <Shield size={20} className="text-red-400" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+              <Shield size={20} className="text-red-600" />
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-red-300">Cannot proceed with export</h4>
-              <p className="text-xs text-gray-400">Please resolve the following issues:</p>
+              <h4 className="text-sm font-semibold text-red-700">Cannot proceed with export</h4>
+              <p className="text-xs text-slate-500">Please resolve the following issues:</p>
             </div>
           </div>
           <ul className="space-y-2 mb-5">
             {validationErrors.map((e, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-red-300/80">
-                <XCircle size={14} className="mt-0.5 shrink-0 text-red-400" /> {e}
+              <li key={i} className="flex items-start gap-2 text-sm text-red-700">
+                <XCircle size={14} className="mt-0.5 shrink-0 text-red-600" /> {e}
               </li>
             ))}
           </ul>
           <div className="flex justify-end">
             <button onClick={() => setShowSubmitModal(false)}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 transition">
+              className={ghostButtonCls}>
               Close
             </button>
           </div>
