@@ -168,6 +168,10 @@ const formatCoordinate = (value, axis) => {
   return `${Math.abs(value).toFixed(4)}°${direction}`;
 };
 
+const getGoogleMapsLocationUrl = (lat, lng) => (
+  `https://www.google.com/maps?q=${lat},${lng}`
+);
+
 const distanceKm = (lat1, lng1, lat2, lng2) => {
   const toRadians = (degrees) => degrees * (Math.PI / 180);
   const earthRadiusKm = 6371;
@@ -626,11 +630,13 @@ const MapModeToggle = ({ mapMode, onChange, googleMapsConfigured }) => (
         Google Maps
       </button>
     </div>
-    {!googleMapsConfigured && (
-      <span className="rounded-full border border-amber-800/40 bg-amber-950/20 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-amber-300">
-        API key required
-      </span>
-    )}
+    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider ${
+      googleMapsConfigured
+        ? 'border-emerald-800/40 bg-emerald-950/20 text-emerald-300'
+        : 'border-amber-800/40 bg-amber-950/20 text-amber-300'
+    }`}>
+      {googleMapsConfigured ? 'API key loaded from .env' : 'API key required'}
+    </span>
   </div>
 );
 
@@ -727,7 +733,7 @@ const GoogleStationMap = ({ stations, hoveredStation, setHoveredStation, height 
         ))}
       </div>
       <div className="absolute right-4 top-4 z-10 rounded-xl border border-amber-800/40 bg-amber-950/70 px-3 py-2 text-[11px] font-medium text-amber-200 shadow-xl">
-        Google Maps requires internet access at runtime
+        Google Maps is using the .env API key and requires internet access at runtime
       </div>
       {stations.length === 0 && (
         <div className="absolute inset-x-4 bottom-4 z-10 rounded-xl border border-gray-800/70 bg-gray-950/85 px-4 py-3 text-center text-xs text-gray-300 shadow-xl">
@@ -787,6 +793,14 @@ const GoogleStationMap = ({ stations, hoveredStation, setHoveredStation, height 
                   {formatCoordinate(activeStation.lat, 'lat')} / {formatCoordinate(activeStation.lng, 'lng')}
                 </p>
               </div>
+              <a
+                href={getGoogleMapsLocationUrl(activeStation.lat, activeStation.lng)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1 rounded-md bg-gray-900 px-2.5 py-1.5 text-[11px] font-medium text-white hover:bg-gray-800"
+              >
+                <Navigation size={12} /> Open in Google Maps
+              </a>
             </div>
           </InfoWindowF>
         )}
@@ -819,7 +833,7 @@ export default function App() {
   const [mapMode, setMapMode] = useState(googleMapsConfigured ? 'google' : 'offline');
   const [mapModeMessage, setMapModeMessage] = useState(
     googleMapsConfigured
-      ? 'Google Maps is active for live spatial review. Keep the offline map available for direct delivery and judging.'
+      ? 'Google Maps is active using VITE_GOOGLE_MAPS_API_KEY from .env. Keep the offline map available for direct delivery and judging.'
       : 'Google Maps is optional. Add VITE_GOOGLE_MAPS_API_KEY to enable it; the bundled offline map remains the safe default.'
   );
 
@@ -952,7 +966,7 @@ export default function App() {
     setMapMode(nextMode);
     setMapModeMessage(
       nextMode === 'google'
-        ? 'Google Maps uses live tiles and requires internet access at runtime. Use the offline map for portable submission builds.'
+        ? 'Google Maps uses the API key from .env, loads live tiles, and requires internet access at runtime. Use the offline map for portable submission builds.'
         : 'Offline mode uses the bundled SVG map, so the interface still opens directly without external services.'
     );
   }, [addToast, googleMapsConfigured]);
@@ -1801,6 +1815,7 @@ export default function App() {
                 <th className="text-center px-5 py-3 font-medium">Power</th>
                 <th className="text-center px-5 py-3 font-medium">Grid Status</th>
                 <th className="text-center px-5 py-3 font-medium">Distributor</th>
+                <th className="text-center px-5 py-3 font-medium">Google Maps</th>
                 <th className="text-right px-5 py-3 font-medium">Actions</th>
               </tr>
             </thead>
@@ -1841,6 +1856,16 @@ export default function App() {
                       {resolvedDistributor.source === 'Imported' && <span className="text-[10px] text-blue-300">Imported</span>}
                     </div>
                   </td>
+                  <td className="px-5 py-3.5 text-center">
+                    <a
+                      href={getGoogleMapsLocationUrl(s.lat, s.lng)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 rounded-lg border border-gray-700 px-2.5 py-1 text-[11px] font-semibold text-blue-300 hover:bg-gray-800 hover:text-blue-200"
+                    >
+                      <Navigation size={12} /> Open
+                    </a>
+                  </td>
                   <td className="px-5 py-3.5 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => startEdit(s)}
@@ -1858,7 +1883,7 @@ export default function App() {
               })}
               {stations.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-gray-600">
+                  <td colSpan={9} className="px-5 py-12 text-center text-gray-600">
                     <MapPin size={32} className="mx-auto mb-2 opacity-30" />
                     <p className="text-sm">No stations loaded yet. Import File 2.csv or click "Add Station" to begin.</p>
                   </td>
