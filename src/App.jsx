@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import Papa from 'papaparse';
 import {
-  LayoutDashboard, Map, AlertTriangle, Download, Plus, Trash2, Edit3, Check, X,
+  LayoutDashboard, Map as MapIcon, AlertTriangle, Download, Plus, Trash2, Edit3, Check, X,
   Zap, MapPin, Activity, ChevronRight, Settings, FileText, Shield,
   Battery, Navigation, BarChart3, Bell, Search, Menu, ChevronDown, Eye, RefreshCw,
   Info, CheckCircle2, XCircle, AlertCircle, Cpu, Globe, Layers, Target, Gauge, Upload
@@ -1424,7 +1424,7 @@ export default function App() {
   // ─── NAV ITEMS ───────────────────────────────────────────────────────
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'map', label: 'Map Explorer', icon: Map },
+    { id: 'map', label: 'Map Explorer', icon: MapIcon },
     { id: 'friction', label: 'Risk & Friction', icon: AlertTriangle },
     { id: 'export', label: 'Reports', icon: Download },
   ];
