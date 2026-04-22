@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Analytical Report — IE Datathon · Iberdrola 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:#fff;color:#1a202c;font-size:11pt;line-height:1.6}
+  @page{size:A4;margin:22mm 20mm}
+  @media print{body{font-size:10pt}.page-break{page-break-before:always}}
+
+  .cover{background:linear-gradient(135deg,#003f88 0%,#0066cc 60%,#00a651 100%);color:white;padding:60px 50px 50px;min-height:240px;position:relative}
+  .cover-logo{font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
+  .cover-logo span{color:#6ee7b7}
+  .cover-tag{font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;opacity:.7;margin-bottom:32px}
+  .cover h1{font-size:22px;font-weight:800;line-height:1.25;max-width:520px;margin-bottom:10px}
+  .cover h2{font-size:14px;font-weight:400;opacity:.8;max-width:480px}
+  .cover-meta{margin-top:28px;display:flex;gap:32px;font-size:10px;opacity:.7}
+  .cover-meta div{display:flex;flex-direction:column;gap:3px}
+  .cover-meta strong{font-size:12px;opacity:1;font-weight:600}
+
+  .body-wrap{padding:0 50px}
+  h2.section-title{font-size:15px;font-weight:800;color:#003f88;border-bottom:2px solid #003f88;padding-bottom:6px;margin:28px 0 14px;text-transform:uppercase;letter-spacing:.04em}
+  h3{font-size:12px;font-weight:700;color:#1a202c;margin:18px 0 8px}
+  p{margin-bottom:10px;color:#374151}
+  ul,ol{padding-left:20px;margin-bottom:10px}
+  li{margin-bottom:5px;color:#374151}
+  strong{color:#1a202c}
+
+  .exec-box{background:#f0f7ff;border-left:4px solid #003f88;padding:14px 18px;border-radius:0 8px 8px 0;margin:16px 0}
+  .exec-box p{margin:0;font-size:11px;color:#1e3a5f}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:10px}
+  th{background:#003f88;color:white;padding:7px 10px;text-align:left;font-weight:600;font-size:9px;text-transform:uppercase;letter-spacing:.06em}
+  td{padding:6px 10px;border-bottom:1px solid #e5e7eb;color:#374151}
+  tr:nth-child(even) td{background:#f9fafb}
+  td.green{color:#059669;font-weight:600}
+  td.amber{color:#d97706;font-weight:600}
+  td.red{color:#dc2626;font-weight:600}
+
+  .kpi-row{display:flex;gap:14px;margin:14px 0}
+  .kpi-box{flex:1;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;text-align:center}
+  .kpi-val{font-size:24px;font-weight:800;color:#003f88;line-height:1}
+  .kpi-lab{font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;font-weight:600}
+  .kpi-box.green .kpi-val{color:#059669}
+  .kpi-box.amber .kpi-val{color:#d97706}
+  .kpi-box.red .kpi-val{color:#dc2626}
+
+  .phase-row{display:flex;gap:12px;margin:14px 0}
+  .phase{flex:1;border-radius:10px;padding:12px 14px}
+  .phase.p1{background:#ecfdf5;border:1px solid #6ee7b7}
+  .phase.p2{background:#fffbeb;border:1px solid #fcd34d}
+  .phase.p3{background:#fef2f2;border:1px solid #fca5a5}
+  .phase-title{font-size:11px;font-weight:700;margin-bottom:6px}
+  .phase.p1 .phase-title{color:#065f46}
+  .phase.p2 .phase-title{color:#92400e}
+  .phase.p3 .phase-title{color:#7f1d1d}
+  .phase ul{font-size:9.5px;padding-left:14px}
+  .phase li{margin-bottom:3px;color:#374151}
+
+  .source-list{font-size:9px;color:#6b7280;margin:14px 0}
+  .source-list li{margin-bottom:3px}
+  a{color:#003f88}
+
+  .footer{background:#f8fafc;border-top:2px solid #003f88;padding:14px 50px;font-size:9px;color:#9ca3af;display:flex;justify-content:space-between;margin-top:32px}
+  .disclaimer{background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;margin:14px 0;font-size:9.5px;color:#92400e}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-logo">Iberdrola<span> × IE Datathon</span></div>
+  <div class="cover-tag">IE Sustainability Datathon · March 2026</div>
+  <h1>Designing Tomorrow's Charging Network:<br>A Data-Driven Proposal for Spain's Interurban EV Infrastructure</h1>
+  <h2>Analytical Report — Deliverable 4 (Executive Summary)</h2>
+  <div class="cover-meta">
+    <div><span>Scope</span><strong>Spain interurban roads (autopistas, autovías, carreteras nacionales)</strong></div>
+    <div><span>Horizon</span><strong>2027 deployment scenario</strong></div>
+    <div><span>Date</span><strong>April 2026</strong></div>
+  </div>
+</div>
+
+<div class="body-wrap">
+
+<!-- SECTION 1: EXECUTIVE SUMMARY -->
+<h2 class="section-title">1. Executive Summary</h2>
+
+<div class="exec-box">
+  <p>We propose a network of <strong>52 new charging stations and 400 chargers</strong> across Spain's primary interurban corridors, designed to eliminate range anxiety on every major route by 2027. The model integrates road traffic data (MITMA), the EV fleet growth projection from the mandatory datos.gob.es repository, and electrical substation capacity data from i-DE, Endesa, and Viesgo. The single most important finding is not where to put the chargers — it's that <strong>13 of the 52 proposed locations require grid reinforcement before any charger can be switched on</strong>. Without that parallel infrastructure investment, the network cannot function.</p>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi-box"><div class="kpi-val">52</div><div class="kpi-lab">New stations</div></div>
+  <div class="kpi-box"><div class="kpi-val">400</div><div class="kpi-lab">Chargers total</div></div>
+  <div class="kpi-box green"><div class="kpi-val">20</div><div class="kpi-lab">Grid-ready</div></div>
+  <div class="kpi-box amber"><div class="kpi-val">19</div><div class="kpi-lab">Moderate grid</div></div>
+  <div class="kpi-box red"><div class="kpi-val">13</div><div class="kpi-lab">Congested grid</div></div>
+  <div class="kpi-box"><div class="kpi-val">2.7M</div><div class="kpi-lab">EVs by 2027</div></div>
+</div>
+
+<!-- SECTION 2: METHODOLOGY -->
+<h2 class="section-title">2. Methodology</h2>
+
+<h3>2.1 Scope Definition</h3>
+<p>The analysis is strictly limited to <strong>interurban roads</strong> as defined in the Ministry of Transport and Sustainable Mobility (MITMA) dataset — autopistas (AP-), autovías (A-), and carreteras nacionales (N-). All sites are verified to fall outside a 20–25 km exclusion radius of the eight largest Spanish city cores (Madrid, Barcelona, Valencia, Seville, Bilbao, Zaragoza, Málaga, Murcia), consistent with the datathon brief.</p>
+
+<h3>2.2 Key Parameters and Assumptions</h3>
+<table>
+  <tr><th>Parameter</th><th>Value</th><th>Source / Justification</th></tr>
+  <tr><td>Power per charger</td><td>150 kW (fixed)</td><td>Datathon rules — mandatory standard</td></tr>
+  <tr><td>EV nominal range (WLTP)</td><td>400 km</td><td>European fleet average BEV 2024 (ACEA data)</td></tr>
+  <tr><td>Max inter-station gap</td><td>150 km</td><td>37.5% range buffer ensures no stranding at 75% charge depletion</td></tr>
+  <tr><td>Grid threshold — Sufficient</td><td>≥ 50 MW available</td><td>Supports up to 333 simultaneous 150 kW connections with headroom</td></tr>
+  <tr><td>Grid threshold — Moderate</td><td>20–50 MW available</td><td>Serviceable with demand-management; risk during summer peaks</td></tr>
+  <tr><td>Grid threshold — Congested</td><td>&lt; 20 MW available</td><td>Substation reinforcement required before deployment</td></tr>
+  <tr><td>EV 2027 projection</td><td>2,729,613</td><td>datos.gob.es model: linear waypoint 2024 actuals ↔ 2030 PNIEC target</td></tr>
+  <tr><td>Public charging ratio</td><td>1.3 kW per BEV</td><td>AFIR Regulation (EU) 2023/1804, Article 4</td></tr>
+</table>
+
+<div class="disclaimer">
+  <strong>Grid threshold justification:</strong> A hub with 10 × 150 kW chargers draws 1.5 MW at peak. Engineering standards for new connection requests require substations to maintain a 10× safety factor across mixed-use loads during seasonal peaks. Spain's summer highway traffic runs 30–45% above annual average (MITMA 2024 Aforo data), meaning substations rated at their nominal capacity can face effective overload during August. The 20 MW / 50 MW thresholds were chosen conservatively to account for this seasonality.
+</div>
+
+<h3>2.3 Network Optimization Algorithm</h3>
+<p>Station placement follows a <strong>greedy coverage algorithm</strong> applied corridor-by-corridor:</p>
+<ol>
+  <li>Extract POI anchors per corridor from MITMA road data: service areas, logistics nodes, regional city fringes, border crossings.</li>
+  <li>Advance along the corridor from the Madrid origin. When the cumulative gap since the last placed station exceeds <strong>140 km</strong> (10 km safety margin below the 150 km rule), place the next station at the nearest valid anchor.</li>
+  <li>Merge overlapping coverage zones where corridors share a junction city (Zaragoza: A-2 / AP-68; Sevilla: A-4 / A-66) to eliminate redundant stations.</li>
+  <li>Assign charger count: traffic tier × AFIR demand coefficient, rounded to nearest 2 chargers (minimum 6, maximum 12).</li>
+</ol>
+
+<h3>2.4 Grid Capacity Analysis</h3>
+<p>Each proposed site is spatially matched to its nearest electrical substation using a KD-tree join (ETRS89 / UTM Zone 30N projection, 40 km search radius). Distributor assignment follows geographic jurisdiction:</p>
+<ul>
+  <li><strong>i-DE (Iberdrola):</strong> Central and northern interior — A-1, A-2 (western half), A-3, A-4 (north), A-5, A-6, A-66, AP-68</li>
+  <li><strong>Endesa (e-distribución):</strong> Eastern and southern corridors — A-2 (Catalonia), A-7, A-4 (Andalusia), A-5 (Extremadura)</li>
+  <li><strong>Viesgo:</strong> Cantabrian coast — A-8 corridor</li>
+</ul>
+
+<!-- SECTION 3: FINDINGS -->
+<h2 class="section-title">3. Key Findings</h2>
+
+<h3>3.1 Proposed Charging Network (File 2)</h3>
+<table>
+  <tr><th>Corridor</th><th>Length (km)</th><th>Stations</th><th>Chargers</th><th>Sufficient</th><th>Moderate</th><th>Congested</th></tr>
+  <tr><td>A-1 Madrid–Irún</td><td>450</td><td>4</td><td>34</td><td class="green">3</td><td class="amber">1</td><td class="red">—</td></tr>
+  <tr><td>A-2 Madrid–Barcelona</td><td>620</td><td>7</td><td>58</td><td class="green">3</td><td class="amber">2</td><td class="red">2</td></tr>
+  <tr><td>A-3 Madrid–Valencia</td><td>355</td><td>4</td><td>30</td><td class="green">2</td><td class="amber">1</td><td class="red">1</td></tr>
+  <tr><td>A-4 Madrid–Cádiz</td><td>534</td><td>6</td><td>50</td><td class="green">3</td><td class="amber">2</td><td class="red">1</td></tr>
+  <tr><td>A-5 Madrid–Badajoz</td><td>412</td><td>4</td><td>28</td><td class="green">1</td><td class="amber">2</td><td class="red">1</td></tr>
+  <tr><td>A-6 Madrid–A Coruña</td><td>610</td><td>6</td><td>44</td><td class="green">3</td><td class="amber">2</td><td class="red">1</td></tr>
+  <tr><td>A-7 Mediterranean</td><td>1380</td><td>11</td><td>88</td><td class="green">3</td><td class="amber">4</td><td class="red">4</td></tr>
+  <tr><td>A-8 Cantabrian</td><td>585</td><td>4</td><td>28</td><td class="green">—</td><td class="amber">2</td><td class="red">2</td></tr>
+  <tr><td>A-66 Vía de la Plata</td><td>620</td><td>4</td><td>28</td><td class="green">1</td><td class="amber">2</td><td class="red">1</td></tr>
+  <tr><td>AP-68 Bilbao–Zaragoza</td><td>255</td><td>2</td><td>14</td><td class="green">1</td><td class="amber">1</td><td class="red">—</td></tr>
+  <tr style="background:#f0f7ff;font-weight:700"><td>TOTAL</td><td>5,821</td><td>52</td><td>402</td><td class="green">20</td><td class="amber">19</td><td class="red">13</td></tr>
+</table>
+
+<h3>3.2 Grid Friction Points (File 3)</h3>
+<p>Thirty-two locations are classified as friction points (Moderate or Congested). The most critical are the 13 Congested sites, where available substation capacity falls below 20 MW:</p>
+<table>
+  <tr><th>Station</th><th>Corridor</th><th>Distributor</th><th>Chargers</th><th>Demand (kW)</th><th>Status</th></tr>
+  <tr><td>IBE_007 — Calatayud</td><td>A-2</td><td>i-DE</td><td>6</td><td>900</td><td class="red">Congested</td></tr>
+  <tr><td>IBE_011 — Martorell</td><td>A-2</td><td>Endesa</td><td>10</td><td>1,500</td><td class="red">Congested</td></tr>
+  <tr><td>IBE_014 — Utiel–Requena</td><td>A-3</td><td>i-DE</td><td>6</td><td>900</td><td class="red">Congested</td></tr>
+  <tr><td>IBE_018 — Bailén</td><td>A-4</td><td>Endesa</td><td>8</td><td>1,200</td><td class="red">Congested</td></tr>
+  <tr><td>IBE_024 — Trujillo</td><td>A-5</td><td>Endesa</td><td>6</td><td>900</td><td class="red">Congested</td></tr>
+  <tr><td>IBE_029 — Ponferrada</td><td>A-6</td><td>i-DE</td><td>6</td><td>900</td><td class="red">Congested</td></tr>
+  <tr><td>IBE_033 — Granollers</td><td>A-7</td><td>Endesa</td><td>10</td><td>1,500</td><td class="red">Congested</td></tr>
+  <tr><td>IBE_038 — Alicante–Elche</td><td>A-7</td><td>Endesa</td><td>10</td><td>1,500</td><td class="red">Congested</td></tr>
+  <tr><td>IBE_041 — Málaga W</td><td>A-7</td><td>Endesa</td><td>8</td><td>1,200</td><td class="red">Congested</td></tr>
+  <tr><td>IBE_042 — Algeciras</td><td>A-7</td><td>Endesa</td><td>8</td><td>1,200</td><td class="red">Congested</td></tr>
+  <tr><td>IBE_044 — Unquera</td><td>A-8</td><td>Viesgo</td><td>6</td><td>900</td><td class="red">Congested</td></tr>
+  <tr><td>IBE_046 — Luarca</td><td>A-8</td><td>Viesgo</td><td>6</td><td>900</td><td class="red">Congested</td></tr>
+  <tr><td>IBE_047 — Cáceres</td><td>A-66</td><td>Endesa</td><td>6</td><td>900</td><td class="red">Congested</td></tr>
+</table>
+
+<!-- SECTION 4: STRATEGY -->
+<h2 class="section-title">4. Strategic Roadmap</h2>
+
+<div class="phase-row">
+  <div class="phase p1">
+    <div class="phase-title">Phase 1 — Deploy Now (2025–2026)</div>
+    <ul>
+      <li>20 Sufficient-classified sites</li>
+      <li>178 chargers, 26.6 MW grid-ready</li>
+      <li>No reinforcement required</li>
+      <li>Covers all 10 corridors at minimum density</li>
+      <li>Estimated CAPEX: ~€45M</li>
+    </ul>
+  </div>
+  <div class="phase p2">
+    <div class="phase-title">Phase 2 — Managed Deployment (2026–2027)</div>
+    <ul>
+      <li>19 Moderate sites with smart charging</li>
+      <li>143 chargers, 21.5 MW with OCPP control</li>
+      <li>Staggered charging windows during peaks</li>
+      <li>Real-time substation load monitoring</li>
+      <li>Estimated CAPEX: ~€36M</li>
+    </ul>
+  </div>
+  <div class="phase p3">
+    <div class="phase-title">Phase 3 — Grid-First (parallel track, 2025–2027)</div>
+    <ul>
+      <li>13 Congested sites requiring reinforcement</li>
+      <li>~€32.5M grid investment (13 substations)</li>
+      <li>Charger deployment follows reinforcement</li>
+      <li>AFIR compliance depends on this track</li>
+      <li>Iberdrola as DSO can self-fund</li>
+    </ul>
+  </div>
+</div>
+
+<p>The phasing logic is intentionally pragmatic. Phase 1 can start tomorrow — these 20 sites require no waiting on grid works, and they cover every major corridor at the minimum serviceable density. Phases 2 and 3 run simultaneously but with different owners: Iberdrola's charging business (Mobility) deploys Phase 2, while Iberdrola's distribution arm (i-DE) leads the grid reinforcement program. For Endesa and Viesgo sites in Phase 3, Iberdrola should enter bilateral grid access agreements as the charging operator.</p>
+
+<h3>4.1 The Killer Insight: Iberdrola's Dual Role</h3>
+<p>Something no competitor can replicate: <strong>Iberdrola is both the electricity distributor (i-DE) and the charging operator</strong> on 27 of the 52 proposed sites. This means Iberdrola can fast-track grid connection approvals, pre-negotiate substation access, and build the grid reinforcement and the charging station simultaneously rather than sequentially. The 13 Congested sites in i-DE territory (Calatayud, Utiel-Requena, Ponferrada, and others) are not a liability — they're sites where Iberdrola has an information advantage over every other charging operator.</p>
+
+<!-- SECTION 5: LIMITATIONS -->
+<h2 class="section-title">5. Limitations and Data Gaps</h2>
+
+<ul>
+  <li><strong>Grid capacity data:</strong> The substation datasets from i-DE, Endesa, and Viesgo reflect published figures and may not capture recent connection requests that have reduced headroom. Grid classification should be re-validated against live data before final site selection.</li>
+  <li><strong>EV projection:</strong> The 2,729,613 figure is a linear interpolation between 2024 actuals and the PNIEC 2030 target. Spain has historically underperformed EV targets, so this likely represents an optimistic scenario. A conservative 30% haircut would give ~1.9M EVs by 2027, which would reduce the charger deficit but not eliminate it.</li>
+  <li><strong>Traffic seasonality:</strong> The MITMA ADT figures are annual averages. Summer peak demand (August) on the A-7 and A-4 corridors can be 40–60% higher, meaning Moderate stations may behave as Congested during peak weeks.</li>
+  <li><strong>Existing station quality:</strong> The NAP baseline of 847 interurban chargers includes AC slow chargers (≤22 kW) alongside DC fast chargers. The effective interurban DC fast charger count is likely 150–200, making the gap significantly wider than the headline 847 suggests.</li>
+</ul>
+
+<!-- SECTION 6: DATA SOURCES -->
+<h2 class="section-title">6. Data Sources and References</h2>
+
+<div class="source-list">
+  <ol>
+    <li><strong>Road network:</strong> Ministry of Transport and Sustainable Mobility (MITMA) — Road Routes dataset. <a href="https://www.mitma.gob.es/carreteras/trafico-velocidades-y-accidentes-vias-conv">mitma.gob.es</a></li>
+    <li><strong>EV charging baseline:</strong> National Access Point for Traffic and Mobility — Electric vehicle charging points dataset. <a href="https://nap.mitma.es/">nap.mitma.es</a></li>
+    <li><strong>EV growth projection (mandatory):</strong> datos.gob.es GitHub repository — "Route to electrification: Deciphering the growth of electric vehicles in Spain through data analytics." Forked and extended per datathon requirements. <a href="https://datos.gob.es">datos.gob.es</a></li>
+    <li><strong>Grid capacity — i-DE (Iberdrola):</strong> Consumption capacity map | i-DE — Iberdrola Group. <a href="https://www.i-de.es/consumidores/conexion-a-la-red/mapa-capacidad">i-de.es</a></li>
+    <li><strong>Grid capacity — Endesa:</strong> e-distribución Network Capacity Nodes — Historical access capacity documents (CSV/XLSX). <a href="https://www.edistribucion.com/">edistribucion.com</a></li>
+    <li><strong>Grid capacity — Viesgo:</strong> Interactive grid map | Viesgo Distribución. <a href="https://www.viesgo.com/es-es/distribucion/">viesgo.com</a></li>
+    <li><strong>Vehicle registrations:</strong> DGT Microdatos — monthly vehicle registration files, June–November 2025. <a href="https://www.dgt.es/microdatos">dgt.es</a></li>
+    <li><strong>Regulatory framework:</strong> EU Regulation 2023/1804 (AFIR) — Alternative Fuels Infrastructure Regulation. European Parliament, October 2023.</li>
+    <li><strong>EV adoption benchmarks:</strong> ACEA Electric Vehicles: Tax Benefits &amp; Purchase Incentives 2024; ICCT European EV Market Update Q3 2025.</li>
+    <li><strong>PNIEC targets:</strong> Plan Nacional Integrado de Energía y Clima 2021–2030, Government of Spain.</li>
+  </ol>
+</div>
+
+</div><!-- /body-wrap -->
+
+<div class="footer">
+  <span>IE Sustainability Datathon · March 2026 · Iberdrola Challenge</span>
+  <span>Analytical Report — Deliverable 4 | Page generated April 2026</span>
+</div>
+
+</body>
+</html>

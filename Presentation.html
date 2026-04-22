@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Iberdrola EV Network — IE Datathon Pitch</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#0a0e1a;overflow:hidden;font-family:'Inter',sans-serif}
+  .deck{width:100%;height:100%;position:relative}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:0;overflow:hidden}
+  .slide.active{display:flex}
+
+  /* ── Slide 1: Title ── */
+  .s1{background:linear-gradient(135deg,#001f4d 0%,#003580 45%,#004d00 100%)}
+  .s1 .inner{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;height:100%;padding:60px 80px}
+  .s1 .tag{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#6ee7b7;margin-bottom:20px}
+  .s1 h1{font-size:52px;font-weight:900;color:white;line-height:1.1;max-width:700px;margin-bottom:16px}
+  .s1 h1 span{color:#6ee7b7}
+  .s1 h2{font-size:18px;font-weight:400;color:rgba(255,255,255,.65);max-width:560px;margin-bottom:40px}
+  .s1 .meta{display:flex;gap:40px}
+  .s1 .meta-item{display:flex;flex-direction:column;gap:3px}
+  .s1 .meta-label{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em}
+  .s1 .meta-value{font-size:14px;font-weight:600;color:rgba(255,255,255,.85)}
+  .s1 .deco{position:absolute;right:-80px;top:50%;transform:translateY(-50%);width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(0,160,80,.15),transparent 70%);pointer-events:none}
+
+  /* ── Slide 2: Problem ── */
+  .s2{background:#0d1b2a}
+  .slide-header{padding:36px 72px 0;display:flex;align-items:center;gap:14px}
+  .slide-number{font-size:11px;font-weight:700;color:#334155;letter-spacing:.15em;text-transform:uppercase}
+  .slide-title{font-size:13px;font-weight:700;color:#64748b;letter-spacing:.06em;text-transform:uppercase}
+  .slide-body{flex:1;padding:24px 72px 36px;display:flex;flex-direction:column;justify-content:center}
+  .big-stat{display:flex;gap:32px;margin-bottom:32px;flex-wrap:wrap}
+  .stat-card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:20px 28px;min-width:160px}
+  .stat-val{font-size:38px;font-weight:900;line-height:1;color:#f8fafc}
+  .stat-val.green{color:#10b981} .stat-val.amber{color:#f59e0b} .stat-val.red{color:#ef4444}
+  .stat-val.blue{color:#60a5fa}
+  .stat-sub{font-size:11px;color:#64748b;margin-top:5px;font-weight:500}
+  .insight-box{background:#1e293b;border-left:4px solid #10b981;border-radius:0 12px 12px 0;padding:16px 22px;margin-top:16px}
+  .insight-box.amber{border-color:#f59e0b} .insight-box.red{border-color:#ef4444}
+  .insight-box p{font-size:13px;color:#cbd5e1;line-height:1.6}
+  .insight-box strong{color:#f8fafc}
+  h2.slide-h2{font-size:34px;font-weight:800;color:#f8fafc;margin-bottom:16px;line-height:1.2}
+  h2.slide-h2 span{color:#10b981}
+  .bullet-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .bullet-list li{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:#94a3b8;line-height:1.5}
+  .bullet-list li::before{content:"→";color:#10b981;font-weight:700;flex-shrink:0;margin-top:1px}
+  .bullet-list li strong{color:#e2e8f0}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;flex:1}
+  .col-card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:22px 24px}
+  .col-card h3{font-size:13px;font-weight:700;color:#f8fafc;margin-bottom:12px}
+  .col-card p{font-size:12px;color:#94a3b8;line-height:1.6}
+  .col-card ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:7px}
+  .col-card li{font-size:11.5px;color:#94a3b8;display:flex;align-items:flex-start;gap:8px}
+  .col-card li::before{content:"•";color:#10b981;font-weight:700;flex-shrink:0}
+  .col-card li strong{color:#e2e8f0}
+  .phase-trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:12px}
+  .phase-card{border-radius:12px;padding:18px 20px}
+  .phase-card.g{background:#062014;border:1px solid #10b981}
+  .phase-card.a{background:#1c1000;border:1px solid #f59e0b}
+  .phase-card.r{background:#1a0000;border:1px solid #ef4444}
+  .phase-card h3{font-size:12px;font-weight:700;margin-bottom:10px}
+  .phase-card.g h3{color:#6ee7b7} .phase-card.a h3{color:#fcd34d} .phase-card.r h3{color:#fca5a5}
+  .phase-card ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px}
+  .phase-card li{font-size:11px;color:#94a3b8;display:flex;align-items:flex-start;gap:7px}
+  .phase-card li::before{content:"·";font-weight:900;flex-shrink:0}
+  .phase-card.g li::before{color:#10b981} .phase-card.a li::before{color:#f59e0b} .phase-card.r li::before{color:#ef4444}
+
+  /* ── Map slide ── */
+  .map-placeholder{background:#1e293b;border:1px solid #334155;border-radius:16px;flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .map-placeholder::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='1' fill='%23334155'/%3E%3C/svg%3E") repeat;opacity:.5}
+  .map-note{font-size:12px;color:#475569;text-align:center;z-index:1;padding:16px}
+  .dot-green{display:inline-block;width:10px;height:10px;border-radius:50%;background:#10b981;margin-right:6px;vertical-align:middle}
+  .dot-amber{display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;margin-right:6px;vertical-align:middle}
+  .dot-red{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:6px;vertical-align:middle}
+
+  /* ── Closing ── */
+  .s-close{background:linear-gradient(135deg,#001f4d 0%,#003580 50%,#004d00 100%)}
+  .s-close .inner{display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;text-align:center;padding:60px 80px;gap:20px}
+  .s-close h1{font-size:44px;font-weight:900;color:white;line-height:1.2;max-width:700px}
+  .s-close h1 span{color:#6ee7b7}
+  .s-close p{font-size:15px;color:rgba(255,255,255,.65);max-width:560px;line-height:1.7}
+  .close-stats{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+  .close-stat{text-align:center}
+  .close-stat .val{font-size:40px;font-weight:900;color:#6ee7b7;line-height:1}
+  .close-stat .lab{font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+
+  /* ── Navigation ── */
+  .nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;z-index:1000}
+  .nav-btn{background:rgba(30,41,59,.9);border:1px solid #334155;color:#94a3b8;padding:8px 18px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;backdrop-filter:blur(8px)}
+  .nav-btn:hover{background:#1e293b;color:#f8fafc;border-color:#64748b}
+  .nav-dots{display:flex;gap:7px;align-items:center}
+  .nav-dot{width:7px;height:7px;border-radius:50%;background:#334155;cursor:pointer;transition:all .2s}
+  .nav-dot.active{background:#10b981;width:22px;border-radius:4px}
+  .slide-counter{font-size:11px;color:#475569;font-weight:600;position:fixed;top:20px;right:24px;z-index:1000}
+  kbd{background:#1e293b;border:1px solid #334155;padding:2px 7px;border-radius:5px;font-size:10px;color:#94a3b8}
+</style>
+</head>
+<body>
+
+<div class="deck">
+
+<!-- SLIDE 1: TITLE -->
+<div class="slide s1 active" data-idx="0">
+  <div class="deco"></div>
+  <div class="inner">
+    <div class="tag">IE Sustainability Datathon · March 2026 · Iberdrola</div>
+    <h1>Designing <span>Tomorrow's</span><br>Charging Network</h1>
+    <h2>A data-driven proposal for Spain's interurban EV infrastructure — 2027 horizon</h2>
+    <div class="meta">
+      <div class="meta-item"><span class="meta-label">Scope</span><span class="meta-value">Spain interurban roads</span></div>
+      <div class="meta-item"><span class="meta-label">Target year</span><span class="meta-value">2027</span></div>
+      <div class="meta-item"><span class="meta-label">Proposed stations</span><span class="meta-value">52 locations · 400 chargers</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 2: THE PROBLEM -->
+<div class="slide s2" data-idx="1">
+  <div class="slide-header"><span class="slide-number">01 /</span><span class="slide-title">The Problem</span></div>
+  <div class="slide-body">
+    <h2 class="slide-h2">Spain's interurban charging<br>network has a <span>gap problem</span></h2>
+    <div class="big-stat">
+      <div class="stat-card"><div class="stat-val blue">2.7M</div><div class="stat-sub">EVs projected by 2027</div></div>
+      <div class="stat-card"><div class="stat-val red">847</div><div class="stat-sub">Interurban chargers today</div></div>
+      <div class="stat-card"><div class="stat-val amber">1,992</div><div class="stat-sub">Additional chargers needed by 2027</div></div>
+      <div class="stat-card"><div class="stat-val green">150km</div><div class="stat-sub">Max safe gap (AFIR + 400km range)</div></div>
+    </div>
+    <div class="insight-box">
+      <p>The urban charging network is growing fast — Spain has 38,000+ public chargepoints. But <strong>98% of those are in cities</strong>. A driver going from Madrid to Galicia today relies on a patchwork of 847 interurban points, many of them slow AC chargers that do nothing for long-distance travel. By 2027, with 2.7 million EVs on the road, that gap becomes a crisis.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: OUR APPROACH -->
+<div class="slide s2" data-idx="2">
+  <div class="slide-header"><span class="slide-number">02 /</span><span class="slide-title">Our Approach</span></div>
+  <div class="slide-body">
+    <h2 class="slide-h2">Three data streams.<br>One <span>integrated model</span>.</h2>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>What we combined</h3>
+        <ul>
+          <li><strong>MITMA road network</strong> — 12 primary interurban corridors, ADT traffic data, POI anchors</li>
+          <li><strong>datos.gob.es fork</strong> — EV fleet growth model, 2027 projection (mandatory)</li>
+          <li><strong>NAP baseline</strong> — 847 existing interurban chargepoints to avoid redundancy</li>
+          <li><strong>i-DE, Endesa, Viesgo</strong> — substation capacity datasets, MW available per node</li>
+          <li><strong>DGT registrations</strong> — monthly EV registrations Jun–Nov 2025</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>How we optimized</h3>
+        <ul>
+          <li><strong>Greedy coverage algorithm</strong> — advance along each corridor, place station at nearest viable anchor whenever the gap exceeds 140 km</li>
+          <li><strong>Urban exclusion</strong> — 20-25 km radius around major city cores enforced</li>
+          <li><strong>Junction merging</strong> — shared corridor nodes (Zaragoza, Sevilla) deduplicated</li>
+          <li><strong>Grid classification</strong> — KD-tree spatial join to nearest substation within 40 km</li>
+          <li><strong>Thresholds:</strong> ≥50 MW = Sufficient · 20-50 MW = Moderate · &lt;20 MW = Congested</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: NETWORK MAP -->
+<div class="slide s2" data-idx="3">
+  <div class="slide-header"><span class="slide-number">03 /</span><span class="slide-title">The Network</span></div>
+  <div class="slide-body" style="gap:14px">
+    <h2 class="slide-h2">52 stations. <span>10 corridors</span>. Zero gaps.</h2>
+    <div class="big-stat" style="margin-bottom:0">
+      <div class="stat-card"><div class="stat-val green">20</div><div class="stat-sub"><span class="dot-green"></span>Sufficient — deploy now</div></div>
+      <div class="stat-card"><div class="stat-val amber">19</div><div class="stat-sub"><span class="dot-amber"></span>Moderate — demand management</div></div>
+      <div class="stat-card"><div class="stat-val red">13</div><div class="stat-sub"><span class="dot-red"></span>Congested — grid first</div></div>
+      <div class="stat-card"><div class="stat-val blue">400</div><div class="stat-sub">Total chargers · 60.0 MW</div></div>
+    </div>
+    <div class="map-placeholder" style="min-height:200px">
+      <div class="map-note">
+        <p style="color:#475569;font-size:13px;margin-bottom:8px">🗺️ Full interactive map: <strong style="color:#60a5fa">BI_Visualization.html</strong></p>
+        <p style="color:#334155;font-size:11px">Open the self-contained HTML file in any browser — no login, no install required.</p>
+        <div style="margin-top:14px;display:flex;gap:16px;justify-content:center;font-size:11px">
+          <span><span class="dot-green"></span>Sufficient</span>
+          <span><span class="dot-amber"></span>Moderate</span>
+          <span><span class="dot-red"></span>Congested</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: FRICTION POINTS -->
+<div class="slide s2" data-idx="4">
+  <div class="slide-header"><span class="slide-number">04 /</span><span class="slide-title">Grid Bottlenecks</span></div>
+  <div class="slide-body">
+    <h2 class="slide-h2">The grid is the real<br><span>constraint</span> — not geography.</h2>
+    <div class="insight-box red">
+      <p><strong>13 of our 52 proposed locations sit on substations with less than 20 MW available.</strong> These aren't marginal routes — they include Granollers (Barcelona's main freight interchange on A-7), Bailén (the gateway into Andalusia on A-4), and Alicante-Elche airport belt. You can pick the perfect location on a map, but if the substation can't support the load, the charger is decorative.</p>
+    </div>
+    <div class="two-col" style="margin-top:14px">
+      <div class="col-card">
+        <h3>🔴 Most critical congested sites</h3>
+        <ul>
+          <li><strong>Granollers (A-7)</strong> — 10 chargers, 1,500 kW demand · Endesa</li>
+          <li><strong>Martorell (A-2)</strong> — 10 chargers, 1,500 kW demand · Endesa</li>
+          <li><strong>Alicante-Elche (A-7)</strong> — 10 chargers, 1,500 kW demand · Endesa</li>
+          <li><strong>Bailén (A-4)</strong> — 8 chargers, 1,200 kW demand · Endesa</li>
+          <li><strong>Málaga W (A-7)</strong> — 8 chargers, 1,200 kW demand · Endesa</li>
+          <li><strong>Algeciras (A-7)</strong> — 8 chargers, 1,200 kW · Endesa</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>💡 What to do about it</h3>
+        <ul>
+          <li><strong>Iberdrola as DSO:</strong> On i-DE sites, Iberdrola can fast-track its own connection permits — regulatory advantage no competitor has</li>
+          <li><strong>Endesa &amp; Viesgo sites:</strong> Grid access agreements needed — begin negotiations now, 2025</li>
+          <li><strong>Smart charging protocols:</strong> OCPP demand-response can extend Moderate sites to 8+ chargers within existing capacity</li>
+          <li><strong>Total grid investment:</strong> ~€32.5M across 13 substations</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: STRATEGY -->
+<div class="slide s2" data-idx="5">
+  <div class="slide-header"><span class="slide-number">05 /</span><span class="slide-title">Deployment Strategy</span></div>
+  <div class="slide-body">
+    <h2 class="slide-h2">Three phases.<br>One <span>sequenced rollout</span>.</h2>
+    <div class="phase-trio">
+      <div class="phase-card g">
+        <h3>Phase 1 — Deploy Now<br><small style="font-weight:400;opacity:.8">2025–2026</small></h3>
+        <ul>
+          <li>20 Sufficient-classified sites</li>
+          <li>178 chargers, 26.6 MW</li>
+          <li>No grid works needed</li>
+          <li>All 10 corridors served</li>
+          <li>CAPEX ~€45M</li>
+          <li>AFIR compliance begins</li>
+        </ul>
+      </div>
+      <div class="phase-card a">
+        <h3>Phase 2 — Managed Deploy<br><small style="font-weight:400;opacity:.8">2026–2027</small></h3>
+        <ul>
+          <li>19 Moderate sites</li>
+          <li>143 chargers, 21.5 MW</li>
+          <li>OCPP smart charging</li>
+          <li>Staggered peak windows</li>
+          <li>Real-time load monitoring</li>
+          <li>CAPEX ~€36M</li>
+        </ul>
+      </div>
+      <div class="phase-card r">
+        <h3>Phase 3 — Grid First<br><small style="font-weight:400;opacity:.8">Parallel track 2025–2027</small></h3>
+        <ul>
+          <li>13 Congested sites</li>
+          <li>~€32.5M grid investment</li>
+          <li>i-DE self-funds own sites</li>
+          <li>Endesa/Viesgo agreements</li>
+          <li>Deployment follows works</li>
+          <li>AFIR deadline driver</li>
+        </ul>
+      </div>
+    </div>
+    <div class="insight-box" style="margin-top:16px">
+      <p><strong>The key insight:</strong> Phase 1 can start tomorrow. 20 sites, no waiting, every major corridor covered at minimum density. Phases 2 and 3 run simultaneously with different owners — Mobility deploys the chargers, i-DE runs the grid works. This isn't sequential; it's parallel.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: IBERDROLA ADVANTAGE -->
+<div class="slide s2" data-idx="6">
+  <div class="slide-header"><span class="slide-number">06 /</span><span class="slide-title">The Iberdrola Advantage</span></div>
+  <div class="slide-body">
+    <h2 class="slide-h2">No one else can do<br>what <span>Iberdrola</span> can do here.</h2>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>The dual-role advantage</h3>
+        <p style="font-size:12px;color:#94a3b8;margin-bottom:10px">Iberdrola is simultaneously the <strong style="color:#f8fafc">electricity distributor (i-DE)</strong> and the <strong style="color:#f8fafc">charging operator (Mobility)</strong> on 27 of the 52 proposed sites.</p>
+        <p style="font-size:12px;color:#94a3b8">This means:</p>
+        <ul style="margin-top:8px">
+          <li><strong>Self-approve connection requests</strong> — no waiting on a third-party DSO</li>
+          <li><strong>Build grid works and chargers in parallel</strong> — 12-18 month faster deployment</li>
+          <li><strong>Information advantage</strong> — Iberdrola knows its own substation headroom in real time</li>
+          <li><strong>No margin leakage</strong> — grid costs stay within the group P&amp;L</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>Business case at a glance</h3>
+        <ul>
+          <li><strong>Total network CAPEX:</strong> ~€81M (chargers only)</li>
+          <li><strong>Grid reinforcement:</strong> ~€32.5M (13 congested sites)</li>
+          <li><strong>Revenue unlock at 2027 demand:</strong> 2.7M EVs × 1.3 kW AFIR ratio = 3.5 GW public power needed nationally</li>
+          <li><strong>Iberdrola's interurban share:</strong> 61.8 MW of that demand at these 52 sites</li>
+          <li><strong>AFIR compliance risk if NOT deployed:</strong> €50K per non-compliant km of TEN-T core network</li>
+          <li><strong>First-mover advantage:</strong> Interurban charging brand loyalty is sticky — drivers return to familiar networks</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: CLOSE -->
+<div class="slide s-close" data-idx="7">
+  <div class="inner">
+    <div style="font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#6ee7b7;margin-bottom:4px">Summary</div>
+    <h1>52 stations. <span>No driver left behind</span><br>on Spain's highways by 2027.</h1>
+    <p>The network we propose isn't just a list of pins on a map. It's a deployment sequence that respects the physical reality of the grid, uses the minimum viable footprint, and gives Iberdrola a structural competitive advantage that no pure-play charging operator can replicate.</p>
+    <div class="close-stats">
+      <div class="close-stat"><div class="val">52</div><div class="lab">Stations</div></div>
+      <div class="close-stat"><div class="val">400</div><div class="lab">Chargers</div></div>
+      <div class="close-stat"><div class="val">10</div><div class="lab">Corridors</div></div>
+      <div class="close-stat"><div class="val">2.7M</div><div class="lab">EVs by 2027</div></div>
+      <div class="close-stat"><div class="val">100%</div><div class="lab">Coverage</div></div>
+    </div>
+    <p style="font-size:12px;color:rgba(255,255,255,.35);margin-top:8px">IE Sustainability Datathon · March 2026 · Iberdrola Challenge</p>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- Navigation -->
+<div class="nav">
+  <button class="nav-btn" onclick="prevSlide()">← Prev</button>
+  <div class="nav-dots" id="dots"></div>
+  <button class="nav-btn" onclick="nextSlide()">Next →</button>
+</div>
+<div class="slide-counter" id="counter"></div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let current = 0;
+const N = slides.length;
+
+const dotsEl = document.getElementById('dots');
+slides.forEach((_,i)=>{
+  const d = document.createElement('div');
+  d.className = 'nav-dot' + (i===0?' active':'');
+  d.onclick = ()=>goTo(i);
+  dotsEl.appendChild(d);
+});
+
+function goTo(n){
+  slides[current].classList.remove('active');
+  dotsEl.children[current].classList.remove('active');
+  current = (n+N)%N;
+  slides[current].classList.add('active');
+  dotsEl.children[current].classList.add('active');
+  document.getElementById('counter').textContent = `${current+1} / ${N}`;
+}
+function nextSlide(){ goTo(current+1) }
+function prevSlide(){ goTo(current-1) }
+
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key===' ') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+
+document.getElementById('counter').textContent = `1 / ${N}`;
+</script>
+</body>
+</html>
